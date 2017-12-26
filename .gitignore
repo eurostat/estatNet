@@ -1,0 +1,8 @@
+*/.DS_Store
+.DS_Store
+esscrape/*.pyc
+esscrape/*/*.pyc
+esscrape/__pycache__
+esscrape/*/__pycache__
+esscrape/*~
+esscrape/*/*~
