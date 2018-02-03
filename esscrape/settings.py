@@ -1,25 +1,118 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for esscrape project
-#
-# For simplicity, this file contains only settings considered important or
-# commonly used. You can find more settings consulting the documentation:
-#
-#     http://doc.scrapy.org/en/latest/topics/settings.html
-#     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-#     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+"""
+.. _esscrape__settings.py
 
-BOT_NAME = 'esscrape'
+Common settings and basic definitions for Eurobase scraping/indexing spider defined
+in `mod::esscrape` module.  
 
-SPIDER_MODULES = ['esscrape.spiders']
-NEWSPIDER_MODULE = 'esscrape.spiders'
+**About**
+
+For simplicity, this file contains only settings considered important or
+commonly used. 
+
+*credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
+
+*version*:      0.1
+--
+*since*:        Mon Dec 18 17:28:29 2017
+
+**Usage**
+
+    >>> from esscrape import settings
+
+"""
+
+#==============================================================================
+# GLOBAL VARIABLES USED FOR SETTING THE CONNECTION TO EUROSTAT WEBSITE
+#==============================================================================
+
+EC_URL              = 'ec.europa.eu'
+"""
+European Commission URL.
+"""
+ESTAT_DOMAIN        = 'eurostat' 
+"""
+Eurostat domain under European Commission URL.
+"""
+ESTAT_URL           = '%s/%s' % (EC_URL, ESTAT_DOMAIN)
+"""
+Eurostat complete URL.
+"""
+SE_DOMAINURL        = 'statistics-explained/index.php'
+"""
+Statistical Explained domain under Eurostat URL.
+"""
+SE_RELURL           = '%s/%s' % (ESTAT_DOMAIN, SE_DOMAINURL)
+"""
+Statistical Explained domain under European Commission URL.
+"""
+SE_MAINURL          = '%s/%s' % (ESTAT_URL, SE_DOMAINURL)
+# that is: SE_MAINURL          = '%s/%s/%s' % (EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
+"""
+Statistical Explained complete URL.
+"""
+
+MAIN_DOMAIN         = 'Main_Page'
+"""
+Domain of the main page.
+"""
+ARTICLES_DOMAIN     = 'All_articles'
+"""
+Domain where all articles are referred.
+"""
+GLOSSARIES_DOMAIN   = 'Thematic_glossaries'
+"""
+Domain of the thematic glossaries.
+"""
+THEMES_DOMAIN       = 'Statistical_themes'
+"""
+Domain of the statistical themes.
+"""
+CATEGORIES_DOMAIN   = 'Special:Categories'
+"""
+Domain of the categories.
+"""
+
+API_DOMAIN          = 'ec.europa.eu/eurostat/wdds/rest/data'
+"""
+Domain of Eurostat API (not used here).
+"""
+
+PROTOCOL            = 'http'
+"""
+Webpage protocol.
+"""
+LANGS               = ('en','de','fr')
+"""
+Languages supported by this package.
+"""
+DEF_LANG            = 'en'
+"""
+Default language used when launching Eurostat API.
+"""
+
+#==============================================================================
+# GLOBAL VARIABLES USED FOR SETTING THE SPIDER/CRAWLER
+#==============================================================================
+
+# More Scrapy settings in this documentation:
+#   http://doc.scrapy.org/en/latest/topics/settings.html
+#   http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
+#   http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+
+BOT_NAME            = 'esscrape'
+
+SPIDER_MODULES      = ['esscrape.spiders']
+NEWSPIDER_MODULE    = 'esscrape.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'esscrape (+http://www.yourdomain.com)'
+USER_AGENT          = 'esscrape (+https://github.com/gjacopo)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY      = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -27,13 +120,13 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+#DOWNLOAD_DELAY      = 3
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+#COOKIES_ENABLED    = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
