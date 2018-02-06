@@ -7,3 +7,4 @@ esscrape/*/__pycache__
 esscrape/*~
 esscrape/*/*~
 esscrape/__tmp
+esscrape/__tmp/*
