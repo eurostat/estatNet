@@ -28,6 +28,11 @@ commonly used.
 # GLOBAL VARIABLES USED FOR SETTING THE CONNECTION TO EUROSTAT WEBSITE
 #==============================================================================
 
+PROTOCOL            = 'http'
+"""
+Webpage protocol.
+"""
+
 EC_URL              = 'ec.europa.eu'
 """
 European Commission URL.
@@ -36,7 +41,7 @@ ESTAT_DOMAIN        = 'eurostat'
 """
 Eurostat domain under European Commission URL.
 """
-ESTAT_URL           = '%s/%s' % (EC_URL, ESTAT_DOMAIN)
+ESTAT_URL           = '%s://%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN)
 """
 Eurostat complete URL.
 """
@@ -48,42 +53,84 @@ SE_RELURL           = '%s/%s' % (ESTAT_DOMAIN, SE_DOMAINURL)
 """
 Statistical Explained domain under European Commission URL.
 """
-SE_MAINURL          = '%s/%s' % (ESTAT_URL, SE_DOMAINURL)
-# that is: SE_MAINURL          = '%s/%s/%s' % (EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
+SE_MAINURL          = '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
+# that is: SE_MAINURL          = '%s/%s' % (ESTAT_URL, SE_DOMAINURL)
 """
 Statistical Explained complete URL.
 """
 
-MAIN_DOMAIN         = 'Main_Page'
+WHATLINKSHERE_DOMAIN = 'title=Special:WhatLinksHere'
+"""
+"""
+WHATLINKSHERE_URL   = '%s://%s/%s/%s?%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL, WHATLINKSHERE_DOMAIN)
+# that is: WHATLINKSHERE_URL   = '%s/%s?%s' % (ESTAT_URL, SE_DOMAINURL, WHATLINKSHERE_DOMAIN)
+"""
+"""
+WHATLINKSHERE_LIMIT = 500
+"""
+"""
+
+GLOSSARY_KEY        = 'glossary'
+CATEGORY_KEY        = 'category'
+ARTICLE_KEY         = 'article'
+THEME_KEY           = 'theme'
+
+SE_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY]
+
+MAIN_PAGE           = 'Main_Page'
 """
 Domain of the main page.
 """
-ARTICLES_DOMAIN     = 'All_articles'
+ARTICLES_PAGE       = 'All_articles'
 """
 Domain where all articles are referred.
 """
-GLOSSARIES_DOMAIN   = 'Thematic_glossaries'
+GLOSSARIES_PAGE     = 'Thematic_glossaries'
 """
 Domain of the thematic glossaries.
 """
-THEMES_DOMAIN       = 'Statistical_themes'
+THEMES_PAGE         = 'Statistical_themes'
 """
 Domain of the statistical themes.
 """
-CATEGORIES_DOMAIN   = 'Special:Categories'
+CATEGORIES_PAGE     = 'Special:Categories'
 """
 Domain of the categories.
 """
+
+SE_PAGE             = {'main':          MAIN_PAGE,
+                       GLOSSARY_KEY:    GLOSSARIES_PAGE, 
+                       CATEGORY_KEY:    CATEGORIES_PAGE, 
+                       ARTICLE_KEY:     ARTICLES_PAGE, 
+                       THEME_KEY:       THEMES_PAGE
+                       }
+
+# SE_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY]
+
+GLOSSARY_DOMAIN     = 'Glossary:'
+"""
+"""
+CATEGORY_DOMAIN     = 'Category:'
+"""
+"""
+ARTICLE_DOMAIN      = ''
+"""
+"""
+THEME_DOMAIN        = ''
+"""
+"""
+
+SE_KEYDOMAINS       = {GLOSSARY_KEY:    GLOSSARY_DOMAIN, 
+                       CATEGORY_KEY:    CATEGORY_DOMAIN, 
+                       ARTICLE_KEY:     ARTICLE_DOMAIN, 
+                       THEME_KEY:       THEME_DOMAIN
+                       }
 
 API_DOMAIN          = 'ec.europa.eu/eurostat/wdds/rest/data'
 """
 Domain of Eurostat API (not used here).
 """
 
-PROTOCOL            = 'http'
-"""
-Webpage protocol.
-"""
 LANGS               = ('en','de','fr')
 """
 Languages supported by this package.
