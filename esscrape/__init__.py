@@ -17,7 +17,6 @@ Initialisation file.
 **Usage**
 
     >>> from esscrape import *
-
 """
 
 __all__ = ['spiders']#analysis:ignore
