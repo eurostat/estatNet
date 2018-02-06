@@ -1,6 +1,24 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Define here the models for your scraped items
+"""
+.. _items.py
+
+*credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
+
+*version*:      0.1
+--
+*since*:        Mon Dec 18 17:28:29 2017
+
+**Usage**
+
+    >>> from esscrape import items
+
+**Contents**
+
+
+"""
+# Models for Eurostat scraped items
 #
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
@@ -10,7 +28,7 @@ import os, sys, re#analysis:ignore
 import scrapy 
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import Compose, MapCompose, Join, TakeFirst, Identity
-from scrapy.item import DictItem, Field
+# from scrapy.item import DictItem, Field
 
 from warnings import warn#analysis:ignore
 from collections import defaultdict
@@ -54,35 +72,7 @@ except ImportError:
             return arg
 
 from . import essError, essWarning#analysis:ignore 
-
-#==============================================================================
-# GLOBAL VARIABLES
-#==============================================================================
-
-GLOSSARY_KEY        = 'Glossary'
-CATEGORY_KEY        = 'Category'
-ARTICLE_KEY         = ''
-THEME_KEY           = ''
-
-ARTICLE_FIELDS      = ['Title', 'Last_modified', 'Categories', 'Hidden_categories',
-                       'Source_datasets', 'See_also', 'Publications', 'Main_tables', 
-                       'Database', 'Dedicated_section', 'Metadata',
-                       'Other_information', 'External_links']
-ARTICLE_PATHS       = dict.fromkeys(ARTICLE_FIELDS)
-ARTICLE_PROCESSORS  = dict.fromkeys(ARTICLE_FIELDS)
-
-GLOSSARY_FIELDS     = ['Title', 'Last_modified', 'Categories', 'Text', 
-                       'Further_information', 'Related_concepts', 'Statistical_data']
-GLOSSARY_PATHS      = dict.fromkeys(GLOSSARY_FIELDS)
-GLOSSARY_PROCESSORS = dict.fromkeys(GLOSSARY_FIELDS)
-
-CATEGORY_FIELDS     = []
-CATEGORY_PATHS      = {}
-CATEGORY_PROCESSORS = {}
-
-SE_FIELDS           = {GLOSSARY_KEY: GLOSSARY_FIELDS,
-                       CATEGORY_KEY: CATEGORY_FIELDS,
-                       ARTICLE_KEY: ARTICLE_FIELDS}
+from . import settings#analysis:ignore
 
 #==============================================================================
 # GLOBAL CLASSES/METHODS/
@@ -90,6 +80,7 @@ SE_FIELDS           = {GLOSSARY_KEY: GLOSSARY_FIELDS,
 
 _clean_text                  = Compose(MapCompose(lambda v: v.strip()), Join())   
 _to_int                      = Compose(TakeFirst(), int)
+
 _default_input_processor     = MapCompose(_strip)
 _default_output_processor    = Identity()
 
@@ -300,215 +291,236 @@ class xpath():
         return xrule
 
 #==============================================================================
-# GLOBAL VARIABLES SETTING
+# GLOBAL VARIABLES
 #==============================================================================
 
-## Title
-ARTICLE_PATHS['Title'] =                                    \
-    xpath.create(first='h1[@id="firstHeading"]', 
-                 tag='text()[normalize-space(.)]')
-# that is:
-#   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'
-# one could also try: 
-#   __xpath.create(first='title', tag='text()[normalize-space(.)]')
-ARTICLE_PROCESSORS['Title'] =                               \
-    {'in':  TakeFirst(),
-     'out': _default_output_processor}
+ARTICLE_FIELDS      = ['Title', 'Last_modified', 'Categories', 'Hidden_categories',
+                       'Source_datasets', 'See_also', 'Publications', 'Main_tables', 
+                       'Database', 'Dedicated_section', 'Metadata',
+                       'Other_information', 'External_links']
 
-## Last_modified
-ARTICLE_PATHS['Last_modified'] =                            \
-    xpath.create(node='div[@id="footer"]',                            
-                 first='li[@id="lastmod"]',  
-                 tag='text()',
-                 sep='//')
-# that is actually:    
-#   '//div[@id="footer"]//li[@id="lastmod"]//text()'
-ARTICLE_PROCESSORS['Last_modified'] =                       \
-    {'in':  Compose(_remove_tags, TakeFirst()),
-     'out': _find_dates} 
+GLOSSARY_FIELDS     = ['Title', 'Last_modified', 'Categories', 'Text', 
+                       'Further_information', 'Related_concepts', 'Statistical_data']
 
-## Categories
-ARTICLE_PATHS['Categories'] =                               \
-    xpath.create(first='div',                                    
-                 tag='a/@href',                                
-                 identifier='@id="mw-normal-catlinks"',  
-                 ancestor='*[starts-with(name(),"div")][1]',                           
-                 descendant=True,
-                 sep='//')
-# that is:    
-#   '//div[@id="mw-normal-catlinks"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@id="mw-normal-catlinks"]]//a/@href'
-ARTICLE_PROCESSORS['Categories'] =                          \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
+CATEGORY_FIELDS     = ['Title', 'Last_modified', 'Pages']
 
-## Hidden_categories
-ARTICLE_PATHS['Hidden_categories'] =                        \
-    xpath.create(first='div',                                    
-                 tag='a/@href',                                
-                 identifier='@id="mw-hidden-catlinks"',  
-                 ancestor='*[starts-with(name(),"div")][1]',                           
-                 descendant=True,
-                 sep='//')
-# that is:    
-#   '//div[@id="mw-hidden-catlinks"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@id="mw-hidden-catlinks"]]//a/@href'
-ARTICLE_PROCESSORS['Hidden_categories'] =                   \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
+THEME_FIELDS        = ['Title', 'Statistical_articles', 'Topics', 'Online_publications',
+                       'Overview', 'Background_articles', 'Glossary']
+
+SE_FIELDS           = {settings.GLOSSARY_KEY:   GLOSSARY_FIELDS,
+                       settings.CATEGORY_KEY:   CATEGORY_FIELDS,
+                       settings.ARTICLE_KEY:    ARTICLE_FIELDS,
+                       settings.THEME_KEY:      THEME_FIELDS}
+
+try:
+    assert ARTICLE_PATHS
+    assert not (ARTICLE_PATHS in (None,{}) or all([v in ([],'',None) for v in ARTICLE_PATHS.values()]))
+except (NameError,AssertionError):
+    ARTICLE_PATHS       = dict.fromkeys(ARTICLE_FIELDS)
+   ## Title
+    ARTICLE_PATHS['Title'] =                                    \
+        xpath.create(first='h1[@id="firstHeading"]', 
+                     tag='text()[normalize-space(.)]')
+    # that is:
+    #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'
+    # one could also try: 
+    #   __xpath.create(first='title', tag='text()[normalize-space(.)]')    
+    ## Last_modified
+    ARTICLE_PATHS['Last_modified'] =                            \
+        xpath.create(node='div[@id="footer"]',                            
+                     first='li[@id="lastmod"]',  
+                     tag='text()',
+                     sep='//')
+    # that is actually:    
+    #   '//div[@id="footer"]//li[@id="lastmod"]//text()'    
+    ## Categories
+    ARTICLE_PATHS['Categories'] =                               \
+        xpath.create(first='div',                                    
+                     tag='a/@href',                                
+                     identifier='@id="mw-normal-catlinks"',  
+                     ancestor='*[starts-with(name(),"div")][1]',                           
+                     descendant=True,
+                     sep='//')
+    # that is:    
+    #   '//div[@id="mw-normal-catlinks"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@id="mw-normal-catlinks"]]//a/@href'    
+    ## Hidden_categories
+    ARTICLE_PATHS['Hidden_categories'] =                        \
+        xpath.create(first='div',                                    
+                     tag='a/@href',                                
+                     identifier='@id="mw-hidden-catlinks"',  
+                     ancestor='*[starts-with(name(),"div")][1]',                           
+                     descendant=True,
+                     sep='//')
+    # that is:    
+    #   '//div[@id="mw-hidden-catlinks"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@id="mw-hidden-catlinks"]]//a/@href'        
+    ## Source_datasets:
+    ARTICLE_PATHS['Source_datasets'] =                          \
+        xpath.create(node='div[@class="thumb tright"]',
+                     first='i[contains(text(),"Source")]',                                    
+                     tag='a[1]/@href',                                
+                     following_sibling=True,                           
+                     sep='//')
+    # that is:    
+    #   '//div[@class="thumb tright"]//i[contains(text(),"Source")]//following-sibling::a[1]/@href'
+    # (also accept: '//div[@class="thumb tright"]//i[contains(text(),"Source")]/following-sibling::a[1]/@href')    
+    ## See_also:
+    ARTICLE_PATHS['See_also'] =                                 \
+        xpath.create(first='h2',
+                     tag='a/@href',
+                     identifier='span[@id="See_also"]',
+                     #identifier='span[@id="See_also" and normalize-space(.)="See also"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h2[span[@id="Further_Eurostat_information"]]',
+                     sep='//')
+    # that is:    
+    #   '//h2[span[@id="See_also"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="See_also"]]]//a/@href'
+    # note that this will work as well:
+    #   '//h2[span[@id="See_also" and normalize-space(.)="See also"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="See_also" and normalize-space(.)="See also"]]//a/@href'    
+    ## Publications:
+    ARTICLE_PATHS['Publications'] =                             \
+        xpath.create(first='h3',
+                     tag='li/a/@href',
+                     identifier='span[@id="Publications"]',
+                     #identifier='span[@id="Publications" and normalize-space(.)="Publications"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h3[span[@id="Main_tables"]]'
+                     sep='//')
+    # that is:    
+    #   '//h3[span[@id="Publications"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Publications"]]]//li/a/@href'
+    # note that this will work as well:    
+    #   '//h3[span[@id="Publications" and normalize-space(.)="Publications"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Publications" and normalize-space(.)="Publications"]]//li/a/@href'       
+    ## Main_tables
+    ARTICLE_PATHS['Main_tables'] =                              \
+        xpath.create(first='h3',
+                     tag='li/a/@href',
+                     identifier='span[@id="Main_tables"]',
+                     #identifier='span[@id="Main_tables" and normalize-space(.)="Main tables"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h3[span[@id="Database"]]'
+                     sep='//')
+    # that is:    
+    #   '//h3[span[@id="Main_tables"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Main_tables"]]]//li/a/@href'
+    # note that this will work as well:
+    #   '//h3[span[@id="Main_tables" and normalize-space(.)="Main tables"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Main_tables" and normalize-space(.)="Main tables"]]//li/a/@href'
+    ## Database     
+    ARTICLE_PATHS['Database'] =                                 \
+        xpath.create(first='h3',
+                     tag='li/a/@href',
+                     identifier='span[@id="Database"]',
+                     #identifier='span[@id="Database" and normalize-space(.)="Database"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h3[span[@id="Dedicated_section"]]'
+                     sep='//')
+    # that is:    
+    #   '//h3[span[@id="Database"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Database"]]]//li/a/@href'
+    ## Dedicated_section
+    ARTICLE_PATHS['Dedicated_section'] =                        \
+        xpath.create(first='h3',
+                     tag='li/a/@href',
+                     identifier='span[@id="Dedicated_section"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h2[span[@id="Methodology_.2F_Metadata"]]'
+                     sep='//')
+    # that is:    
+    #   '//h3[span[@id="Dedicated_section"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Dedicated_section"]]]//li/a/@href'
+    # note that this will work as well:
+    #   '//h3[span[@id="Dedicated_section" and normalize-space(.)="Dedicated section"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Dedicated_section" and normalize-space(.)="Dedicated section"]]//li/a/@href'    
+    ## Metadata
+    ARTICLE_PATHS['Metadata'] =                                 \
+        xpath.create(first='h3',
+                     tag='li/a/@href',
+                     identifier='span[@id="Methodology_.2F_Metadata"]',
+                     # identifier='span[@id="Methodology_.2F_Metadata" and normalize-space(.)="Methodology / Metadata"]',    
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h2[span[@id="Source_data_for_tables_and_figures_.28MS_Excel.29"]]'
+                     sep='//')
+    # that is:    
+    #   '//h3[span[@id="Methodology_.2F_Metadata"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Methodology_.2F_Metadata"]]]//li/a/@href'
+    # note that this will work as well:
+    #   '//h3[span[@id="Methodology_.2F_Metadata"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Methodology_.2F_Metadata"]]//li/a/@href'
+    ## External_links: 
+    ARTICLE_PATHS['External_links'] =                           \
+        xpath.create(first='h2',
+                     tag='li/a/@href',
+                     identifier='span[@id="External_links"]',
+                     #identifier='span[@id="External_links" and normalize-space(.)="External links"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:    
+    #   '//h2[span[@id="External_links"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="External_links"]]]//li/a/@href'
+    # note that this will work as well:
+    #   '//h2[span[@id="External_links" and normalize-space(.)="External links"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="External_links" and normalize-space(.)="External links"]]//li/a/@href'
+    ## Other_information
+    ARTICLE_PATHS['Other_information'] =                        \
+        xpath.create(first='h3',
+                     tag='li/a/@href',
+                     identifier='span[@id="Other_information"]',
+                     # identifier='span[@id="Other_information" and normalize-space(.)="Other information"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h2[span[@id="External_links" and normalize-space(.)="External links"]]'
+                     sep='//')
+    # that is:    
+    #   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Other_information"]]]//li/a/@href'
+    # note that this will work as well:
+    #   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Other_information]]//li/a/@href'
+#else:
+#    warn(essWarning("Glocal variable ARTICLE_PATHS already defined"))
+            
+try:
+    assert ARTICLE_PROCESSORS
+    assert not (ARTICLE_PROCESSORS in (None,{}) or all([v in ([],'',None) for v in ARTICLE_PROCESSORS.values()]))
+except (NameError,AssertionError):
+    ARTICLE_PROCESSORS  = dict.fromkeys(ARTICLE_FIELDS)
+    ARTICLE_PROCESSORS['Title'] =                               \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Last_modified'] =                       \
+        {'in':  Compose(_remove_tags, TakeFirst()),
+         'out': _find_dates} 
+    ARTICLE_PROCESSORS['Categories'] =                          \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Hidden_categories'] =                   \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Source_datasets'] =                     \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['See_also'] =                            \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Publications'] =                        \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Main_tables'] =                         \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Database'] =                            \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Dedicated_section'] =                   \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Metadata'] =                            \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['External_links'] =                      \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Other_information'] =                    \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+#else:
+#    warn(essWarning("Glocal variable ARTICLE_PROCESSORS already defined"))        
     
-## Source_datasets:
-ARTICLE_PATHS['Source_datasets'] =                          \
-    xpath.create(node='div[@class="thumb tright"]',
-                 first='i[contains(text(),"Source")]',                                    
-                 tag='a[1]/@href',                                
-                 following_sibling=True,                           
-                 sep='//')
-# that is:    
-#   '//div[@class="thumb tright"]//i[contains(text(),"Source")]//following-sibling::a[1]/@href'
-# (also accept: '//div[@class="thumb tright"]//i[contains(text(),"Source")]/following-sibling::a[1]/@href')
-ARTICLE_PROCESSORS['Source_datasets'] =                     \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
-## See_also:
-ARTICLE_PATHS['See_also'] =                                 \
-    xpath.create(first='h2',
-                 tag='a/@href',
-                 identifier='span[@id="See_also"]',
-                 #identifier='span[@id="See_also" and normalize-space(.)="See also"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h2[span[@id="Further_Eurostat_information"]]',
-                 sep='//')
-# that is:    
-#   '//h2[span[@id="See_also"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="See_also"]]]//a/@href'
-# note that this will work as well:
-#   '//h2[span[@id="See_also" and normalize-space(.)="See also"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="See_also" and normalize-space(.)="See also"]]//a/@href'
-ARTICLE_PROCESSORS['See_also'] =                            \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
-## Publications:
-ARTICLE_PATHS['Publications'] =                             \
-    xpath.create(first='h3',
-                 tag='li/a/@href',
-                 identifier='span[@id="Publications"]',
-                 #identifier='span[@id="Publications" and normalize-space(.)="Publications"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h3[span[@id="Main_tables"]]'
-                 sep='//')
-# that is:    
-#   '//h3[span[@id="Publications"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Publications"]]]//li/a/@href'
-# note that this will work as well:    
-#   '//h3[span[@id="Publications" and normalize-space(.)="Publications"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Publications" and normalize-space(.)="Publications"]]//li/a/@href'
-ARTICLE_PROCESSORS['Publications'] =                        \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-   
-## Main_tables
-ARTICLE_PATHS['Main_tables'] =                              \
-    xpath.create(first='h3',
-                 tag='li/a/@href',
-                 identifier='span[@id="Main_tables"]',
-                 #identifier='span[@id="Main_tables" and normalize-space(.)="Main tables"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h3[span[@id="Database"]]'
-                 sep='//')
-# that is:    
-#   '//h3[span[@id="Main_tables"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Main_tables"]]]//li/a/@href'
-# note that this will work as well:
-#   '//h3[span[@id="Main_tables" and normalize-space(.)="Main tables"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Main_tables" and normalize-space(.)="Main tables"]]//li/a/@href'
-ARTICLE_PROCESSORS['Main_tables'] =                         \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-    
-## Database     
-ARTICLE_PATHS['Database'] =                                 \
-    xpath.create(first='h3',
-                 tag='li/a/@href',
-                 identifier='span[@id="Database"]',
-                 #identifier='span[@id="Database" and normalize-space(.)="Database"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h3[span[@id="Dedicated_section"]]'
-                 sep='//')
-# that is:    
-#   '//h3[span[@id="Database"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Database"]]]//li/a/@href'
-ARTICLE_PROCESSORS['Database'] =                            \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
-## Dedicated_section
-ARTICLE_PATHS['Dedicated_section'] =                        \
-    xpath.create(first='h3',
-                 tag='li/a/@href',
-                 identifier='span[@id="Dedicated_section"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h2[span[@id="Methodology_.2F_Metadata"]]'
-                 sep='//')
-# that is:    
-#   '//h3[span[@id="Dedicated_section"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Dedicated_section"]]]//li/a/@href'
-# note that this will work as well:
-#   '//h3[span[@id="Dedicated_section" and normalize-space(.)="Dedicated section"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Dedicated_section" and normalize-space(.)="Dedicated section"]]//li/a/@href'
-ARTICLE_PROCESSORS['Dedicated_section'] =                   \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
-## Metadata
-ARTICLE_PATHS['Metadata'] =                                 \
-    xpath.create(first='h3',
-                 tag='li/a/@href',
-                 identifier='span[@id="Methodology_.2F_Metadata"]',
-                 # identifier='span[@id="Methodology_.2F_Metadata" and normalize-space(.)="Methodology / Metadata"]',    
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h2[span[@id="Source_data_for_tables_and_figures_.28MS_Excel.29"]]'
-                 sep='//')
-# that is:    
-#   '//h3[span[@id="Methodology_.2F_Metadata"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Methodology_.2F_Metadata"]]]//li/a/@href'
-# note that this will work as well:
-#   '//h3[span[@id="Methodology_.2F_Metadata"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Methodology_.2F_Metadata"]]//li/a/@href'
-ARTICLE_PROCESSORS['Metadata'] =                            \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
-## External_links: 
-ARTICLE_PATHS['External_links'] =                           \
-    xpath.create(first='h2',
-                 tag='li/a/@href',
-                 identifier='span[@id="External_links"]',
-                 #identifier='span[@id="External_links" and normalize-space(.)="External links"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 sep='//')
-# that is:    
-#   '//h2[span[@id="External_links"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="External_links"]]]//li/a/@href'
-# note that this will work as well:
-#   '//h2[span[@id="External_links" and normalize-space(.)="External links"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="External_links" and normalize-space(.)="External links"]]//li/a/@href'
-ARTICLE_PROCESSORS['External_links'] =                      \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
-## Other_information
-ARTICLE_PATHS['Other_information'] =                        \
-    xpath.create(first='h3',
-                 tag='li/a/@href',
-                 identifier='span[@id="Other_information"]',
-                 # identifier='span[@id="Other_information" and normalize-space(.)="Other information"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h2[span[@id="External_links" and normalize-space(.)="External links"]]'
-                 sep='//')
-# that is:    
-#   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Other_information"]]]//li/a/@href'
-# note that this will work as well:
-#   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Other_information]]//li/a/@href'
-ARTICLE_PROCESSORS['Other_information'] =                    \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
-
 #%%
 ## Glossary pages
  
@@ -516,143 +528,340 @@ ARTICLE_PROCESSORS['Other_information'] =                    \
 #
 # One can launch:
 # scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income'
-
  
-## Title
-GLOSSARY_PATHS['Title'] =                                   \
-    xpath.create(first='h1[@id="firstHeading"]', 
-                 tag='text()[normalize-space(.)]')
-# that is:
-#   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'
-GLOSSARY_PROCESSORS['Title'] =                              \
-    {'in':  TakeFirst(),
-     'out': _default_output_processor} 
+try:
+    assert GLOSSARY_PATHS
+    assert not (GLOSSARY_PATHS in (None,{}) or all([v in ([],'',None) for v in GLOSSARY_PATHS.values()]))
+except (NameError,AssertionError):
+    GLOSSARY_PATHS      = {}
+    # GLOSSARY_PATHS      = dict.fromkeys(GLOSSARY_FIELDS)
+    ## Title
+    GLOSSARY_PATHS['Title'] =                                   \
+        xpath.create(first='h1[@id="firstHeading"]', 
+                     tag='text()[normalize-space(.)]')
+    # that is:
+    #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'    
+    ## Last_modified
+    GLOSSARY_PATHS['Last_modified'] =                           \
+        xpath.create(node='div[@id="footer"]',                            
+                     first='li[@id="lastmod"]',  
+                     tag='text()',
+                     sep='//')
+    # that is actually:    
+    #   '//div[@id="footer"]//li[@id="lastmod"]//text()'    
+    ## Categories
+    GLOSSARY_PATHS['Categories'] =                              \
+        xpath.create(first='div',                                    
+                     tag='a/@href',                                
+                     identifier='@id="mw-normal-catlinks"',  
+                     ancestor='*[starts-with(name(),"div")][1]',                           
+                     descendant=True,
+                     sep='//')
+    # that is actually:   
+    #   '//div[@id="mw-normal-catlinks"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@id="mw-normal-catlinks"]]//a/@href'        
+    ## Text:
+    GLOSSARY_PATHS['Text'] =                                    \
+        xpath.create(node='div[@id="bodyContent"]',
+                     last='h2[span[@id="Related_concepts"]]',
+                     child='//div[@id="mw-content-text"]',
+                     preceding_sibling='/',
+                     sep='//')
+    # that is actually:    
+    #   '//div[@id="bodyContent"]//h2[span[@id="Related_concepts"]]/preceding-sibling::*[//div[@id="mw-content-text"]]'
+    # note that this will work as well:
+    #   '//div[@id="bodyContent"]//h2[span[@id="Related_concepts"]]/preceding-sibling::*[//div[@id="mw-content-text"]/descendant::*]'    
+    ## Further_information
+    GLOSSARY_PATHS['Further_information'] =                     \
+        xpath.create(first='h2',
+                     tag='li/a/@href',
+                     identifier='span[@id="Further_information"]',
+                     # identifier='span[@id="Further_information" and normalize-space(.)="Further information"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     #preceding_sibling='h2[span[@id="Related_concepts"]]'
+                     sep='//')
+    # that is actually:    
+    #   '//h2[span[@id="Further_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Further_information"]]]//li/a/@href'    
+    ## Related_concepts
+    GLOSSARY_PATHS['Related_concepts'] =                        \
+        xpath.create(node='div[@id="bodyContent"]',
+                     tag='ul[1]/li/a/@href',
+                     first='h2[span[@id="Related_concepts"]]',
+                     #first='span[@id="Related_concepts" and contains(text(),"Related concepts")]',
+                     last='h2[span[@id="Statistical_data"]]',
+                     following_sibling=True,
+                     sep='//')
+    # that is actually:    
+    #   '//div[@id="bodyContent"]//h2[span[@id="Statistical_data"]]//preceding::h2[span[@id="Related_concepts"]]//following-sibling::ul[1]/li/a/@href'
+    # note that this will work as well:
+    #   '//div[@id="bodyContent"]//h2[span[@id="Statistical_data"]]//preceding-sibling::*[//h2[span[@id="Related_concepts"]]//following-sibling::ul[1]]/li/a/@href'
+    # or:
+    #   '//div[@id="bodyContent"]//h2[span[@id="Related_concepts"]][following::h2[span[@id="Statistical_data"]]]//following-sibling::ul[1]/li/a/@href'
+    ## Statistical_data
+    GLOSSARY_PATHS['Statistical_data'] =                        \
+        xpath.create(tag='ul/li/a/@href',
+                     first='h2[span[@id="Statistical_data"]]',
+                     #first='span[@id="Statistical_data" and contains(text(),"Statistical data")]',
+                     following_sibling=True,
+                     sep='//')
+    # that is actually:    
+    #   '//h2[span[@id="Statistical_data"]]//following-sibling::ul/li/a/@href'
+    # note that this will work as well:
+    #   '//h2[span[@id="Statistical_data"]]//following-sibling::*[//ul/li/a]//@href'
 
-## Last_modified
-GLOSSARY_PATHS['Last_modified'] =                           \
-    xpath.create(node='div[@id="footer"]',                            
-                 first='li[@id="lastmod"]',  
-                 tag='text()',
-                 sep='//')
-# that is actually:    
-#   '//div[@id="footer"]//li[@id="lastmod"]//text()'
-GLOSSARY_PROCESSORS['Last_modified'] =                      \
-    {'in':  Compose(_remove_tags, TakeFirst()),
-     'out': _find_dates} 
 
-## Categories
-GLOSSARY_PATHS['Categories'] =                              \
-    xpath.create(first='div',                                    
-                 tag='a/@href',                                
-                 identifier='@id="mw-normal-catlinks"',  
-                 ancestor='*[starts-with(name(),"div")][1]',                           
-                 descendant=True,
-                 sep='//')
-# that is actually:   
-#   '//div[@id="mw-normal-catlinks"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@id="mw-normal-catlinks"]]//a/@href'
-GLOSSARY_PROCESSORS['Categories'] =                         \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
+try:
+    assert GLOSSARY_PROCESSORS
+    assert not (GLOSSARY_PROCESSORS in (None,{}) or all([v in ([],'',None) for v in GLOSSARY_PROCESSORS.values()]))
+except (NameError,AssertionError):
+    GLOSSARY_PROCESSORS = {}
+    # GLOSSARY_PROCESSORS = dict.fromkeys(GLOSSARY_FIELDS)
+    GLOSSARY_PROCESSORS['Title'] =                              \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
+    GLOSSARY_PROCESSORS['Last_modified'] =                      \
+        {'in':  Compose(_remove_tags, TakeFirst()),
+         'out': _find_dates} 
+    GLOSSARY_PROCESSORS['Categories'] =                         \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    GLOSSARY_PROCESSORS['Text'] =                               \
+        {'in':  MapCompose(_remove_tags),
+         'out': Join(' ')} 
+    GLOSSARY_PROCESSORS['Further_information'] =                \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor} 
+    GLOSSARY_PROCESSORS['Related_concepts'] =                   \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor}
+    GLOSSARY_PROCESSORS['Statistical_data'] =                   \
+        {'in':  _default_input_processor,
+         'out': _default_output_processor} 
+        
+#%%
+## Category pages
+ 
+# Example: http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary
+#
+# One can launch:
+# scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary'
+ 
+try:
+    assert CATEGORY_PATHS
+    assert not (CATEGORY_PATHS in (None,{}) or all([v in ([],'',None) for v in CATEGORY_PATHS.values()]))
+except (NameError,AssertionError):
+    CATEGORY_PATHS      = {}
+    ## Title
+    #    <title>Category:Living conditions glossary - Statistics Explained</title>
+    #    <h1 id="firstHeading" class="firstHeading">Category:Living conditions glossary	</h1>
+    CATEGORY_PATHS['Title'] =                                   \
+        xpath.create(first='h1[@id="firstHeading"]', 
+                     tag='text()[normalize-space(.)]')
+    # that is:
+    #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'    
+    ## Last_modified
+    #    <div id="footer" role="contentinfo">
+    #	<ul id="f-list" class="list-inline">
+    #		<li id="lastmod"> This page was last modified on 12 November 2014, at 09:43.</li>
+    CATEGORY_PATHS['Last_modified'] =                           \
+        xpath.create(node='div[@id="footer"]',                            
+                     first='li[@id="lastmod"]',  
+                     tag='text()',
+                     sep='//')
+    # that is actually:    
+    #   '//div[@id="footer"]//li[@id="lastmod"]//text()'   
+    ## Pages in category
+    CATEGORY_PATHS['Pages'] =                                   \
+        xpath.create(first='div',                                    
+                     tag='li/a/@href',                                
+                     identifier='@class="mw-content-ltr"',  
+                     ancestor='*[starts-with(name(),"div")][1]',                           
+                     descendant=True,
+                     sep='//')
+    # that is actually:    
+    #   '//div[@class="mw-content-ltr"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@class="mw-content-ltr"]]//li/a/@href'
+
+try:
+    assert CATEGORY_PROCESSORS
+    assert not (CATEGORY_PROCESSORS in (None,{}) or all([v in ([],'',None) for v in CATEGORY_PROCESSORS.values()]))
+except (NameError,AssertionError):
+    CATEGORY_PROCESSORS = {}
+    CATEGORY_PROCESSORS['Title'] =                              \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
+    CATEGORY_PROCESSORS['Last_modified'] =                      \
+        {'in':  Compose(_remove_tags, TakeFirst()),
+         'out': _find_dates} 
+    CATEGORY_PROCESSORS['Pages'] =                              \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+
+## THEMES
+try:
+    assert THEME_PATHS
+    assert not (THEME_PATHS in (None,{}) or all([v in ([],'',None) for v in THEME_PATHS.values()]))
+except (NameError,AssertionError):
+    THEME_PATHS      = {}
+    ## Title
+    #    <title>Living conditions - Statistics Explained</title>
+    #    <h1 id="firstHeading" class="firstHeading"> Living conditions		</h1>
+    THEME_PATHS['Title'] =                                      \
+        xpath.create(first='h1[@id="firstHeading"]', 
+                     tag='text()[normalize-space(.)]')
+    # that is:
+    #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'    
+    ## Last_modified
+    #THEME_PATHS['Last_modified'] =                             \
+    ## Statistical_articles
+    THEME_PATHS['Statistical_articles'] =                       \
+        xpath.create(first='h2',
+                     tag='a/@href',
+                     identifier='span[@id="Statistical_articles"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:
+    #   '//h2[span[@id="Statistical_articles"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Statistical_articles"]]]//a/@href'
+    ## Topics (subset of Statistical_articles)
+    THEME_PATHS['Topics'] =                                     \
+        xpath.create(first='h4',
+                     tag='a/@href',
+                     identifier='span[@id="Topics"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:
+    #   '//h2[span[@id="Statistical_articles"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Statistical_articles"]]]//a/@href'
+    ## Online_publications
+    THEME_PATHS['Online_publications'] =                        \
+        xpath.create(first='h2',
+                     tag='a/@href',
+                     identifier='span[@id="Online_publications"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:
+    #   '//h2[span[@id="Online_publications"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Online_publications"]]]//a/@href'
     
-## Text:
-GLOSSARY_PATHS['Text'] =                                    \
-    xpath.create(node='div[@id="bodyContent"]',
-                 last='h2[span[@id="Related_concepts"]]',
-                 child='//div[@id="mw-content-text"]',
-                 preceding_sibling='/',
-                 sep='//')
-# that is actually:    
-#   '//div[@id="bodyContent"]//h2[span[@id="Related_concepts"]]/preceding-sibling::*[//div[@id="mw-content-text"]]'
-# note that this will work as well:
-#   '//div[@id="bodyContent"]//h2[span[@id="Related_concepts"]]/preceding-sibling::*[//div[@id="mw-content-text"]/descendant::*]'
-GLOSSARY_PROCESSORS['Text'] =                               \
-    {'in':  MapCompose(_remove_tags),
-     'out': Join(' ')} 
+    ## Overview
+    THEME_PATHS['Overview'] =                                   \
+        xpath.create(first='h4',
+                     tag='a/@href',
+                     identifier='span[@id="Overview"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:
+    #   '//h4[span[@id="Overview"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Overview"]]]//a/@href'
 
-## Further_information
-GLOSSARY_PATHS['Further_information'] =                     \
-    xpath.create(first='h2',
-                 tag='li/a/@href',
-                 identifier='span[@id="Further_information"]',
-                 # identifier='span[@id="Further_information" and normalize-space(.)="Further information"]',
-                 following_sibling=True,
-                 preceding_sibling='*[starts-with(name(),"h")][1]',
-                 #preceding_sibling='h2[span[@id="Related_concepts"]]'
-                 sep='//')
-# that is actually:    
-#   '//h2[span[@id="Further_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Further_information"]]]//li/a/@href'
-GLOSSARY_PROCESSORS['Further_information'] =                \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor} 
+    ## Background_articles
+    THEME_PATHS['Background_articles'] =                        \
+        xpath.create(first='h4',
+                     tag='a/@href',
+                     identifier='span[@id="Background_articles"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:
+    #   '//h4[span[@id="Background_articles"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Background_articles"]]]//a/@href'
+    
+    ## Glossary
+    THEME_PATHS['Glossary'] =                                   \
+        xpath.create(first='h4',
+                     tag='a/@href',
+                     identifier='span[@id="Glossary"]',
+                     following_sibling=True,
+                     preceding_sibling='*[starts-with(name(),"h")][1]',
+                     sep='//')
+    # that is:
+    #   '//h4[span[@id="Glossary"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Glossary"]]]//a/@href'
 
-## Related_concepts
-GLOSSARY_PATHS['Related_concepts'] =                        \
-    xpath.create(node='div[@id="bodyContent"]',
-                 tag='ul[1]/li/a/@href',
-                 first='h2[span[@id="Related_concepts"]]',
-                 #first='span[@id="Related_concepts" and contains(text(),"Related concepts")]',
-                 last='h2[span[@id="Statistical_data"]]',
-                 following_sibling=True,
-                 sep='//')
-# that is actually:    
-#   '//div[@id="bodyContent"]//h2[span[@id="Statistical_data"]]//preceding::h2[span[@id="Related_concepts"]]//following-sibling::ul[1]/li/a/@href'
-# note that this will work as well:
-#   '//div[@id="bodyContent"]//h2[span[@id="Statistical_data"]]//preceding-sibling::*[//h2[span[@id="Related_concepts"]]//following-sibling::ul[1]]/li/a/@href'
-# or:
-#   '//div[@id="bodyContent"]//h2[span[@id="Related_concepts"]][following::h2[span[@id="Statistical_data"]]]//following-sibling::ul[1]/li/a/@href'
-GLOSSARY_PROCESSORS['Related_concepts'] =                   \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor}
+try:
+    assert THEME_PROCESSORS
+    assert not (THEME_PROCESSORS in (None,{}) or all([v in ([],'',None) for v in THEME_PROCESSORS.values()]))
+except (NameError,AssertionError):
+    THEME_PROCESSORS = {}
+    THEME_PROCESSORS['Title'] =                                 \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
+    #THEME_PROCESSORS['Last_modified'] =                        \
+    #    {'in':  Compose(_remove_tags, TakeFirst()),
+    #     'out': _find_dates} 
+    THEME_PROCESSORS['Statistical_articles'] =                  \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+    THEME_PROCESSORS['Topics'] =                                \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+    THEME_PROCESSORS['Online_publications'] =                   \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+    THEME_PROCESSORS['Overview'] =                              \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+    THEME_PROCESSORS['Background_articles'] =                   \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+    THEME_PROCESSORS['Glossary'] =                              \
+        {'in': _default_input_processor,
+         'out': _default_output_processor} 
+    
 
-## Statistical_data
-GLOSSARY_PATHS['Statistical_data'] =                        \
-    xpath.create(tag='ul/li/a/@href',
-                 first='h2[span[@id="Statistical_data"]]',
-                 #first='span[@id="Statistical_data" and contains(text(),"Statistical data")]',
-                 following_sibling=True,
-                 sep='//')
-# that is actually:    
-#   '//h2[span[@id="Statistical_data"]]//following-sibling::ul/li/a/@href'
-# note that this will work as well:
-#   '//h2[span[@id="Statistical_data"]]//following-sibling::*[//ul/li/a]//@href'
-GLOSSARY_PROCESSORS['Statistical_data'] =                    \
-    {'in':  _default_input_processor,
-     'out': _default_output_processor} 
+try:
+    assert WHATLINKS
+    assert not (WHATLINKS in (None,{}) or all([v in ([],'',None) for v in WHATLINKS.values()]))
+except (NameError,AssertionError):
+    WHATLINKS = {}
+    WHATLINKS['Links'] =                                    \
+        xpath.create(first='ul[@id="mw-whatlinkshere-list"]',
+                     tag='li/a[not(@title="Special:WhatLinksHere")]/@href',
+                     child=True,
+                     sep='//')
+# '//ul[@id="mw-whatlinkshere-list"]//li/a[not(@title="Special:WhatLinksHere")]/@href'
 
-CATEGORY_PATHS      = {}
 
-SE_PATHS            = {GLOSSARY_KEY: GLOSSARY_PATHS,
-                       CATEGORY_KEY: CATEGORY_PATHS,
-                       ARTICLE_KEY: ARTICLE_PATHS}
+SE_PATHS            = {settings.GLOSSARY_KEY:   GLOSSARY_PATHS,
+                       settings.CATEGORY_KEY:   CATEGORY_PATHS,
+                       settings.ARTICLE_KEY:    ARTICLE_PATHS,
+                       settings.THEME_KEY:      THEME_PATHS}
+
+SE_PROCESSORS       = {settings.GLOSSARY_KEY:   GLOSSARY_PROCESSORS,
+                       settings.CATEGORY_KEY:   CATEGORY_PROCESSORS,
+                       settings.ARTICLE_KEY:    ARTICLE_PROCESSORS,
+                       settings.THEME_KEY:      THEME_PROCESSORS}
 
 #==============================================================================
 # ITEM CLASSES
 #==============================================================================
    
-def __base_item_class(class_name, field_names, **kwargs):
-    processors, paths = kwargs.get('processors', {}), kwargs.get('paths', {})
-    fields = defaultdict(Field) 
-    for key in field_names:
-        if processors in ({},None):
-            fields[key] = scrapy.Field()
-        else:
+def __base_item_class(class_name, paths, **kwargs):
+    processors = kwargs.get('processors', {})
+    fields = defaultdict(scrapy.Field) 
+    for key in paths.keys():
+        try:
             fields[key] = scrapy.Field(
                             input_processor=processors[key]['in'],
                             output_processor=processors[key]['out']
                             )
+        except KeyError:    # when either (i) PROCESSORS in ({},None), 
+                            # or (ii) KEY is not a key in PROCESSORS 
+            fields[key] = scrapy.Field()  
     return type(str(class_name), (scrapy.Item,), 
                 {'fields': fields, 'paths': paths, 'processors': processors}
                 )
 
-GlossaryItem = __base_item_class('GlossaryItem', GLOSSARY_FIELDS, 
-                                 processors=GLOSSARY_PROCESSORS, paths=GLOSSARY_PATHS)
+GlossaryItem = __base_item_class('GlossaryItem', GLOSSARY_PATHS, 
+                                 processors=GLOSSARY_PROCESSORS)
 
-ArticleItem = __base_item_class('GlossaryItem', ARTICLE_FIELDS, 
-                                 processors=ARTICLE_PROCESSORS, paths=ARTICLE_PATHS)
+ArticleItem = __base_item_class('GlossaryItem', ARTICLE_PATHS, 
+                                 processors=ARTICLE_PROCESSORS)
 
-CategoryItem = __base_item_class('GlossaryItem', CATEGORY_FIELDS, 
-                                 processors=CATEGORY_PROCESSORS, paths=CATEGORY_PATHS)
+CategoryItem = __base_item_class('GlossaryItem', CATEGORY_PATHS, 
+                                 processors=CATEGORY_PROCESSORS)
 
+ThemeItem = __base_item_class('ThemeItem', THEME_PATHS, 
+                                 processors=THEME_PROCESSORS)
+            
 #from scrapy.item import BaseItem
 #class _FlexibleItem(dict, BaseItem):
 #   pass
@@ -664,7 +873,7 @@ CategoryItem = __base_item_class('GlossaryItem', CATEGORY_FIELDS,
 #        if key not in self._allowed_keys:
 #            raise essError("Key %s not supported for glossary item" % key)
 #        if key not in self.fields:
-#            self.fields[key] = Field(
+#            self.fields[key] = scrapy.Field(
 #                            input_processor=self.processors[key]['in'],
 #                            output_processor=self.processors[key]['out'])
 #        #super(__BaseItem,self).__setitem__(key, value)   
@@ -682,6 +891,15 @@ CategoryItem = __base_item_class('GlossaryItem', CATEGORY_FIELDS,
 #    _allowed_keys = CATEGORY_FIELDS
 #    processors = CATEGORY_PROCESSORS
 #    paths = CATEGORY_PATHS
+#class ThemeItem(__BaseItem):
+#    _allowed_keys = THEME_FIELDS
+#    processors = THEME_PROCESSORS
+#    paths = THEME_PATHS
+
+SE_ITEMS            = {settings.GLOSSARY_KEY:   GlossaryItem,
+                       settings.CATEGORY_KEY:   CategoryItem,
+                       settings.ARTICLE_KEY:    ArticleItem,
+                       settings.THEME_KEY:      ThemeItem}
 
 #==============================================================================
 # ITEMLOADER CLASSES
@@ -711,4 +929,12 @@ class ArticleItemLoader(__BaseItemLoader):
 class CategoryItemLoader(__BaseItemLoader):
     def __init__(self, *args, **kwargs):
         return super(CategoryItemLoader,self).__init__(CategoryItem(), *args, **kwargs)
+    
+class ThemeItemLoader(__BaseItemLoader):
+    def __init__(self, *args, **kwargs):
+        return super(CategoryItemLoader,self).__init__(CategoryItem(), *args, **kwargs)
 
+SE_ITEMLOADERS      = {settings.GLOSSARY_KEY:   GlossaryItemLoader,
+                       settings.CATEGORY_KEY:   CategoryItemLoader,
+                       settings.ARTICLE_KEY:    ArticleItemLoader,
+                       settings.THEME_KEY:      ThemeItemLoader}
