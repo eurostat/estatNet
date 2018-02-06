@@ -572,7 +572,6 @@ class GlossaryItemTestCase(unittest.TestCase):
     #
     # One can launch:
     # scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income'
-    
      
     ## Title
     #   <title>Glossary:Equivalised disposable income - Statistics Explained</title>
@@ -712,5 +711,224 @@ class GlossaryItemTestCase(unittest.TestCase):
     # out = ['Glossary', 'Living_conditions_glossary', 'Statistical_indicator']    
     pass
 
+#%%
+# CategoryItemTestCase case of CategoryItem
+class CategoryItemTestCase(unittest.TestCase):
+
+    #    <h2>Pages in category "Living conditions glossary"</h2>
+    #    <p>The following 84 pages are in this category, out of 84 total.
+    #    </p><div lang="en" dir="ltr" class="mw-content-ltr">
+    #   <table style="width: 100%;"><tr style="vertical-align: top;"><td style="width: 33.3%;"><h3>A</h3>
+    #    <ul><li><a href="/eurostat/statistics-explained/index.php/Glossary:Actual_social_contributions" title="Glossary:Actual social contributions">Actual social contributions</a></li>
+    #    <li><a href="/eurostat/statistics-explained/index.php/Glossary:Aggregate_replacement_ratio" title="Glossary:Aggregate replacement ratio">Aggregate replacement ratio</a></li>
+    #    <li><a href="/eurostat/statistics-explained/index.php/Glossary:Arrears_for_housing_and_non-housing_bills_and_for_other_loans_and_credit_repayment" title="Glossary:Arrears for housing and non-housing bills and for other loans and credit repayment">Arrears for housing and non-housing bills and for other loans and credit repayment</a></li>
+    #   ...
+    
+    #['/eurostat/statistics-explained/index.php/Glossary:Actual_social_contributions',
+    # '/eurostat/statistics-explained/index.php/Glossary:Aggregate_replacement_ratio',
+    # '/eurostat/statistics-explained/index.php/Glossary:Arrears_for_housing_and_non-housing_bills_and_for_other_loans_and_credit_repayment',
+    # '/eurostat/statistics-explained/index.php/Glossary:At_risk_of_poverty_or_social_exclusion_(AROPE)',
+    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_gap',
+    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_rate_before_social_transfers',
+    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_threshold',
+    # '/eurostat/statistics-explained/index.php/Glossary:Bank_account_overdraft',
+    # '/eurostat/statistics-explained/index.php/Glossary:Bank_current_account',
+    # '/eurostat/statistics-explained/index.php/Glossary:Classification_of_individual_consumption_by_purpose_(COICOP)',
+    # '/eurostat/statistics-explained/index.php/Glossary:COICOP',
+    # '/eurostat/statistics-explained/index.php/Glossary:Collective_household',
+    # '/eurostat/statistics-explained/index.php/Glossary:Credit_or_store_card_unclear_balance',
+    # '/eurostat/statistics-explained/index.php/Glossary:Dependent_children',
+    # '/eurostat/statistics-explained/index.php/Glossary:Disposable_income',
+    # '/eurostat/statistics-explained/index.php/Glossary:Dwelling',
+    # '/eurostat/statistics-explained/index.php/Glossary:Early_retirement',
+    # '/eurostat/statistics-explained/index.php/Glossary:Early_retirement_for_labour_market_reasons',
+    # '/eurostat/statistics-explained/index.php/Glossary:Early_retirement_in_case_of_reduced_ability_to_work',
+    # '/eurostat/statistics-explained/index.php/Glossary:Earnings',
+    # '/eurostat/statistics-explained/index.php/Glossary:Equivalent_size',
+    # '/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income',
+    # '/eurostat/statistics-explained/index.php/Glossary:Equivalised_household_size',
+    # '/eurostat/statistics-explained/index.php/Glossary:Equivalised_income',
+    # '/eurostat/statistics-explained/index.php/Glossary:ESSPROS',
+    # '/eurostat/statistics-explained/index.php/Glossary:EU_statistics_on_income_and_living_conditions_(EU-SILC)',
+    # '/eurostat/statistics-explained/index.php/Glossary:EU-SILC',
+    # '/eurostat/statistics-explained/index.php/Glossary:European_system_of_integrated_social_protection_statistics_(ESSPROS)',
+    # '/eurostat/statistics-explained/index.php/Glossary:Expenditure_on_pensions',
+    # '/eurostat/statistics-explained/index.php/Glossary:Gini_coefficient',
+    # '/eurostat/statistics-explained/index.php/Glossary:Gross_income',
+    # '/eurostat/statistics-explained/index.php/Glossary:HBS',
+    # '/eurostat/statistics-explained/index.php/Glossary:HDI',
+    # '/eurostat/statistics-explained/index.php/Glossary:House_price_index_(HPI)',
+    # '/eurostat/statistics-explained/index.php/Glossary:Household_-_social_statistics',
+    # '/eurostat/statistics-explained/index.php/Glossary:Household_budget_survey_(HBS)', 
+    # '/eurostat/statistics-explained/index.php/Glossary:Household_situation_concerning_arrears_and_outstanding_amounts',
+    # '/eurostat/statistics-explained/index.php/Glossary:Housing_cost_overburden_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:HPI',
+    # '/eurostat/statistics-explained/index.php/Glossary:Human_development_index_(HDI)',
+    # '/eurostat/statistics-explained/index.php/Glossary:Imputed_social_contributions',
+    # '/eurostat/statistics-explained/index.php/Glossary:Income_quintile_group',
+    # '/eurostat/statistics-explained/index.php/Glossary:Income_quintile_share_ratio',
+    # '/eurostat/statistics-explained/index.php/Glossary:Income_terciles',
+    # '/eurostat/statistics-explained/index.php/Glossary:Inequality_of_income_distribution',
+    # '/eurostat/statistics-explained/index.php/Glossary:Institutional_household',
+    # '/eurostat/statistics-explained/index.php/Glossary:Jobless_households',
+    # '/eurostat/statistics-explained/index.php/Glossary:Material_deprivation',
+    # '/eurostat/statistics-explained/index.php/Glossary:Material_deprivation_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:Minimum_wage',
+    # '/eurostat/statistics-explained/index.php/Glossary:Monetary_poverty',
+    # '/eurostat/statistics-explained/index.php/Glossary:Old_age_pension',
+    # '/eurostat/statistics-explained/index.php/Glossary:OMC',
+    # '/eurostat/statistics-explained/index.php/Glossary:Open_method_of_coordination_(OMC)',
+    # '/eurostat/statistics-explained/index.php/Glossary:Overcrowded',
+    # '/eurostat/statistics-explained/index.php/Glossary:Overcrowding_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:Partial_retirement_pension',
+    # '/eurostat/statistics-explained/index.php/Glossary:Persistent_at-risk-of-poverty_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:Persons_living_in_households_with_low_work_intensity',
+    # '/eurostat/statistics-explained/index.php/Glossary:Private_household',
+    # '/eurostat/statistics-explained/index.php/Glossary:Quintile_cut-off_point',
+    # '/eurostat/statistics-explained/index.php/Glossary:Relative_median_at-risk-of-poverty_gap',
+    # '/eurostat/statistics-explained/index.php/Glossary:Relative_median_income_ratio',
+    # '/eurostat/statistics-explained/index.php/Glossary:Room',
+    # '/eurostat/statistics-explained/index.php/Glossary:S80/S20_ratio',
+    # '/eurostat/statistics-explained/index.php/Glossary:Severe_housing_deprivation_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:Severe_material_deprivation_rate',
+    # '/eurostat/statistics-explained/index.php/Glossary:SILC',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_benefits',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_contributions',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_benefits',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_expenditure',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_receipts',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_security_fund',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_transfers',
+    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_scheme',
+    # '/eurostat/statistics-explained/index.php/Glossary:Tax_wedge_on_labour_cost',
+    # '/eurostat/statistics-explained/index.php/Glossary:Under-occupation',
+    # '/eurostat/statistics-explained/index.php/Glossary:Under-occupied_dwelling',
+    # '/eurostat/statistics-explained/index.php/Glossary:Unemployment_trap',
+    # '/eurostat/statistics-explained/index.php/Glossary:Work_intensity',
+    # '/eurostat/statistics-explained/index.php/Glossary:Working_conditions_survey']
+
+    pass
+
+#%%
+# ThemeItemTestCase case of ThemeItem
+class ThemeItemTestCase(unittest.TestCase):
+
+    ## Statistical_articles/Topics
+    # http://ec.europa.eu/eurostat/statistics-explained/index.php/Living_conditions
+    #   <h2><span class="mw-headline" id="Statistical_articles">Statistical articles</span></h2>
+    #   <div class="alert alert-th3">
+    #   <h4><span class="mw-headline" id="Topics">Topics</span></h4>
+    #   <div class="CategoryTreeTag" data-ct-mode="10" data-ct-options="{&quot;mode&quot;:10,&quot;hideprefix&quot;:20,&quot;showcount&quot;:false,&quot;namespaces&quot;:false}">
+    #       <div class="CategoryTreeSection">
+    #           <div class="CategoryTreeItem"><span class="CategoryTreeBullet"><span class="CategoryTreeToggle" style="display: none;" data-ct-title="Household_income,_expenditure_and_debt" title="expand" data-ct-state="collapsed">►</span> </span> 
+    #               <a class="CategoryTreeLabel  CategoryTreeLabelNs14 CategoryTreeLabelCategory" href="/eurostat/statistics-explained/index.php/Category:Household_income,_expenditure_and_debt">Household income, expenditure and debt</a>
+    #           </div>
+    #   	       <div class="CategoryTreeChildren" style="display:none"></div>
+    #       </div>
+    #   </div>
+    #   <div class="CategoryTreeTag" data-ct-mode="10" data-ct-options="{&quot;mode&quot;:10,&quot;hideprefix&quot;:20,&quot;showcount&quot;:false,&quot;namespaces&quot;:false}">
+    #       <div class="CategoryTreeSection">
+    #           <div class="CategoryTreeItem"><span class="CategoryTreeBullet"><span class="CategoryTreeToggle" style="display: none;" data-ct-title="Household_composition_and_family_situation" title="expand" data-ct-state="collapsed">►</span> </span> 
+    #               <a class="CategoryTreeLabel  CategoryTreeLabelNs14 CategoryTreeLabelCategory" href="/eurostat/statistics-explained/index.php/Category:Household_composition_and_family_situation">Household composition and family situation</a>
+    #           </div>
+    #           <div class="CategoryTreeChildren" style="display:none"></div>
+    #       </div>
+    #   </div>
+    #   <div class="CategoryTreeTag" data-ct-mode="10" data-ct-options="{&quot;mode&quot;:10,&quot;hideprefix&quot;:20,&quot;showcount&quot;:false,&quot;namespaces&quot;:false}">
+    #       <div class="CategoryTreeSection">
+    #           <div class="CategoryTreeItem"><span class="CategoryTreeBullet"><span class="CategoryTreeToggle" style="display: none;" data-ct-title="Poverty_and_social_exclusion" title="expand" data-ct-state="collapsed">►</span> </span> 
+    #               <a class="CategoryTreeLabel  CategoryTreeLabelNs14 CategoryTreeLabelCategory" href="/eurostat/statistics-explained/index.php/Category:Poverty_and_social_exclusion">Poverty and social exclusion</a>
+    #           </div>
+    #           <div class="CategoryTreeChildren" style="display:none"></div>
+    #       </div>
+    #   </div>
+    #   ...
+    #   <h2><span class="mw-headline" id="Online_publications">Online publications</span></h2>
+    # running:
+    #       urls=response.xpath(THEME_PATHS['Statistical_articles'])
+    # will return: 
+    #   urls = ['/eurostat/statistics-explained/index.php/Category:Household_income,_expenditure_and_debt',
+    #           '/eurostat/statistics-explained/index.php/Category:Housing',
+    #           '/eurostat/statistics-explained/index.php/Category:Household_composition_and_family_situation',
+    #           '/eurostat/statistics-explained/index.php/Category:Poverty_and_social_exclusion',
+    #           '/eurostat/statistics-explained/index.php/Category:Social_participation',
+    #           '/eurostat/statistics-explained/index.php/Category:Social_protection',
+    #           '/eurostat/statistics-explained/index.php/Category:Quality_of_life',
+    #           '/eurostat/statistics-explained/index.php/Category:Living_conditions_-_young_people',
+    #           '/eurostat/statistics-explained/index.php/Category:Living_conditions_statistics_by_area',
+    #           '/eurostat/statistics-explained/index.php/Category:Archive_-_living_conditions']   
+    # running:
+    #       urls=response.xpath(THEME_PATHS['Topics'])
+    # will return: 
+    #   urls = ['/eurostat/statistics-explained/index.php/Category:Household_income,_expenditure_and_debt',
+    #           '/eurostat/statistics-explained/index.php/Category:Housing',
+    #           '/eurostat/statistics-explained/index.php/Category:Household_composition_and_family_situation',
+    #           '/eurostat/statistics-explained/index.php/Category:Poverty_and_social_exclusion',
+    #           '/eurostat/statistics-explained/index.php/Category:Social_participation',
+    #           '/eurostat/statistics-explained/index.php/Category:Social_protection',
+    #           '/eurostat/statistics-explained/index.php/Category:Quality_of_life',
+    #           '/eurostat/statistics-explained/index.php/Category:Living_conditions_-_young_people']
+
+    ## Online_publications
+    #   <h2><span class="mw-headline" id="Online_publications">Online publications</span></h2>
+    #   <div class="alert alert-th3">
+    #   <p><a href="/eurostat/statistics-explained/index.php/Being_young_in_Europe_today" title="Being young in Europe today">Being young in Europe today</a></p>
+    #   <p><a href="/eurostat/statistics-explained/index.php/EU_statistics_on_income_and_living_conditions_(EU-SILC)_methodology" title="EU statistics on income and living conditions (EU-SILC) methodology">EU statistics on income and living conditions (EU-SILC) methodology</a></p>
+    #   <p><a href="/eurostat/statistics-explained/index.php/Quality_of_life_in_Europe_-_facts_and_views" title="Quality of life in Europe - facts and views">Quality of life in Europe - facts and views</a></p>
+    #   <p><a href="/eurostat/statistics-explained/index.php/Quality_of_life_indicators" title="Quality of life indicators">Quality of life indicators</a></p>
+    #   <p><a href="/eurostat/statistics-explained/index.php/People_in_the_EU_%E2%80%93_who_are_we_and_how_do_we_live%3F" title="People in the EU – who are we and how do we live?">People in the EU – who are we and how do we live?</a></p>
+    #   </div>
+    # running:
+    #       urls=response.xpath(THEME_PATHS['Online_publications'])
+    # will return: 
+    #   urls = ['/eurostat/statistics-explained/index.php/Being_young_in_Europe_today',
+    #           '/eurostat/statistics-explained/index.php/EU_statistics_on_income_and_living_conditions_(EU-SILC)_methodology',
+    #           '/eurostat/statistics-explained/index.php/Quality_of_life_in_Europe_-_facts_and_views',
+    #           '/eurostat/statistics-explained/index.php/Quality_of_life_indicators',
+    #           '/eurostat/statistics-explained/index.php/People_in_the_EU_%E2%80%93_who_are_we_and_how_do_we_live%3F']
+    
+    ## Overview
+    #   <h2><span class="mw-headline" id="Methodology_.2F_Metadata">Methodology / Metadata</span></h2>
+    #   <div class="alert alert-th3">
+    #   <h4><span class="mw-headline" id="Overview">Overview</span></h4>
+    #   <p><a href="/eurostat/statistics-explained/index.php/Living_conditions_statistics_introduced" title="Living conditions statistics introduced">Living conditions statistics introduced</a></p>
+    #   <p><a href="/eurostat/statistics-explained/index.php/EU_statistics_on_income_and_living_conditions_(EU-SILC)_methodology" title="EU statistics on income and living conditions (EU-SILC) methodology">EU statistics on income and living conditions (EU-SILC) methodology</a> - online publication</p>
+    #   </div>
+    # running:
+    #       urls=response.xpath(THEME_PATHS['Overview'])
+    # will return: 
+    #   urls = ['/eurostat/statistics-explained/index.php/Living_conditions_statistics_introduced',
+    #           '/eurostat/statistics-explained/index.php/EU_statistics_on_income_and_living_conditions_(EU-SILC)_methodology']
+    
+    ## Background_articles
+    #   <h4><span class="mw-headline" id="Background_articles">Background articles</span></h4>
+    #   <div class="CategoryTreeTag" data-ct-mode="10" data-ct-options="{&quot;mode&quot;:10,&quot;hideprefix&quot;:20,&quot;showcount&quot;:false,&quot;namespaces&quot;:false}">
+    #       <div class="CategoryTreeSection">
+    #           <div class="CategoryTreeItem"><span class="CategoryTreeBullet"><span class="CategoryTreeToggle" style="display: none;" data-ct-title="Living_conditions_-_background_articles" title="expand" data-ct-state="collapsed">►</span> </span> 
+    #               <a class="CategoryTreeLabel  CategoryTreeLabelNs14 CategoryTreeLabelCategory" href="/eurostat/statistics-explained/index.php/Category:Living_conditions_-_background_articles">Living conditions - background articles</a></div>
+    #   		      <div class="CategoryTreeChildren" style="display:none"></div>
+    #           </div>
+    #       </div>
+    #   </div>
+    # running:
+    #       urls=response.xpath(THEME_PATHS['Background_articles'])
+    # will return: 
+    #   urls = ['/eurostat/statistics-explained/index.php/Category:Living_conditions_-_background_articles']
+    
+    ## Glossary
+    #   <div class="alert alert-th3">
+    #   <h4><span class="mw-headline" id="Glossary">Glossary</span></h4>
+    #   <p><a href="/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary" title="Category:Living conditions glossary">Living conditions glossary</a>
+    #   </p>
+    #   </div>
+    # running:
+    #       urls=response.xpath(THEME_PATHS['Glossary'])
+    # will return: 
+    #   urls = ['/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary']
+    
+    
 
 
+    pass
