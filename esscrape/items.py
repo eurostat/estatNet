@@ -808,11 +808,11 @@ except (NameError,AssertionError):
     
 
 try:
-    assert WHATLINKS
-    assert not (WHATLINKS in (None,{}) or all([v in ([],'',None) for v in WHATLINKS.values()]))
+    assert WHATLINKS_PATHS
+    assert not (WHATLINKS_PATHS in (None,{}) or all([v in ([],'',None) for v in WHATLINKS_PATHS.values()]))
 except (NameError,AssertionError):
-    WHATLINKS = {}
-    WHATLINKS['Links'] =                                    \
+    WHATLINKS_PATHS = {}
+    WHATLINKS_PATHS['Links'] =                                    \
         xpath.create(first='ul[@id="mw-whatlinkshere-list"]',
                      tag='li/a[not(@title="Special:WhatLinksHere")]/@href',
                      child=True,
@@ -861,6 +861,8 @@ CategoryItem = __base_item_class('GlossaryItem', CATEGORY_PATHS,
 
 ThemeItem = __base_item_class('ThemeItem', THEME_PATHS, 
                                  processors=THEME_PROCESSORS)
+
+WhatLinksItem = __base_item_class('WhatLinksItem', WHATLINKS_PATHS)
             
 #from scrapy.item import BaseItem
 #class _FlexibleItem(dict, BaseItem):

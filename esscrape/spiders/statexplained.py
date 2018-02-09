@@ -80,15 +80,38 @@ class SEWhatLinksHere(scrapy.Spider):
     name = "WhatLinksHere"
     allowed_domains = [settings.SE_MAINURL] 
     
+    @staticmethod
+    def url_whatlinkshere(page):
+        return '%s/%s&limit=%s' % (settings.WHATLINKSHERE_URL, page, settings.WHATLINKSHERE_LIMIT)
+    
     def __init__(self, page, *args, **kwargs):
+        self.npages, self.nlinks = kwargs.pop('npages', -1), kwargs.pop('nlinks', -1)
         super(SEWhatLinksHere, self).__init__(*args, **kwargs)
         if page is None:
            raise essError("Name of destination page is missing")
-        self.start_urls = ['%s/%s&limit=%s' % (settings.WHATLINKSHERE_URL, page, settings.WHATLINKSHERE_LIMIT)]
+        elif not isinstance(page, (list, tuple)):
+            page = page[0]
+        if self.start_urls is None:
+            self.start_urls = []
+        [self.start_urls.append(self.url_whatlinkshere(p)) for p in page]
     
-    #def start_requests(self):
-    #    yield scrapy.Request('%s/%s&limit=%s' % (settings.WHATLINKSHERE_URL, self.page, settings.WHATLINKSHERE_LIMIT))    
-    
+    def start_requests(self):
+        #for page in self.page:
+        #    yield scrapy.Request(url=self.url_whatlinkshere(self.page), callback=self.parse)  
+        for url in getattr(self, 'start_urls', []):
+            yield scrapy.Request(url=url, callback=self.parse_whatlinkshere)
+            
+    def parse_whatlinkshere(self, response):
+        self.logger.info('Exploring what links to %s...', response.url)
+        # if response.status :
+        next_pages = response.xpath(items.WHATLINKS['Links']).extract()
+        whatlink = items.WhatLinksItem(response=response)
+        [whatlink.add_xpath(key, whatlink.paths[key]) for key in whatlink.fields]
+        yield whatlink
+        for next_page in next_pages:
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(self.url_whatlinkshere(next_page), callback=self.parse_whatlinkshere)
+            
 class SESpider(scrapy.Spider):
     name = "StatisticalExplained"
     allowed_domains = [settings.SE_MAINURL] 
