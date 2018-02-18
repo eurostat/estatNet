@@ -1,10 +1,11 @@
 */.DS_Store
 .DS_Store
+__temp
+__temp/*
+*~
+esscrape/*~
+esscrape/*/*~
 esscrape/*.pyc
 esscrape/*/*.pyc
 esscrape/__pycache__
 esscrape/*/__pycache__
-esscrape/*~
-esscrape/*/*~
-esscrape/__tmp
-esscrape/__tmp/*
