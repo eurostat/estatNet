@@ -10,6 +10,6 @@ try:
 except:
     import networkx as nx
 
-class EsscrapePipeline(object):
+class Pipeline(object):
     def process_item(self, item, spider):
         return item

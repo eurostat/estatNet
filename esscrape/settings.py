@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-.. _esscrape__settings.py
+.. _esscrape_settings.py
 
 Common settings and basic definitions for Eurobase scraping/indexing spider defined
 in `mod::esscrape` module.  
@@ -20,13 +20,14 @@ commonly used.
 
 **Usage**
 
-    >>> from esscrape import settings
+    >>> from scrapyroWarning import settings
 
 """
 
+#%%
 #==============================================================================
 # GLOBAL VARIABLES USED FOR SETTING THE CONNECTION TO EUROSTAT WEBSITE
-#==============================================================================
+#============================================================================== 
 
 PROTOCOL            = 'http'
 """
@@ -45,6 +46,11 @@ ESTAT_URL           = '%s://%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN)
 """
 Eurostat complete URL.
 """
+
+def __build_estat_url(domain):
+    # return '%s/%s' % (ESTAT_URL, domain)
+    return '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, domain)
+
 SE_DOMAINURL        = 'statistics-explained/index.php'
 """
 Statistical Explained domain under Eurostat URL.
@@ -54,77 +60,147 @@ SE_RELURL           = '%s/%s' % (ESTAT_DOMAIN, SE_DOMAINURL)
 Statistical Explained domain under European Commission URL.
 """
 SE_MAINURL          = '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
-# that is: SE_MAINURL          = '%s/%s' % (ESTAT_URL, SE_DOMAINURL)
 """
 Statistical Explained complete URL.
 """
 
-WHATLINKSHERE_DOMAIN = 'title=Special:WhatLinksHere'
-"""
-"""
-WHATLINKSHERE_URL   = '%s://%s/%s/%s?%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL, WHATLINKSHERE_DOMAIN)
-# that is: WHATLINKSHERE_URL   = '%s/%s?%s' % (ESTAT_URL, SE_DOMAINURL, WHATLINKSHERE_DOMAIN)
-"""
-"""
-WHATLINKSHERE_LIMIT = 500
-"""
-"""
+def __build_se_url(page):
+    if page in (None,''):
+        return '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
+    else:
+        # return '%s/%s?%s' % (ESTAT_URL, SE_DOMAINURL, subdomain)
+        return '%s://%s/%s/%s?%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL, page)
 
 GLOSSARY_KEY        = 'glossary'
 CATEGORY_KEY        = 'category'
 ARTICLE_KEY         = 'article'
 THEME_KEY           = 'theme'
+CONCEPT_KEY         = 'concept'
+WHATLINKS_KEY       = 'whatlinks'
 
-SE_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY]
+SE_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY, CONCEPT_KEY]
 
 MAIN_PAGE           = 'Main_Page'
 """
-Domain of the main page.
+Domain of the "Statistics Explained" main page.
 """
+#MAIN_PAGE_URL       = __build_se_url(MAIN_PAGE)
+#"""
+#Full URL of the "Statistics Explained" main page.
+#"""
+
 ARTICLES_PAGE       = 'All_articles'
 """
-Domain where all articles are referred.
+Domain where "All articles" are referred.
 """
+#ARTICLES_URL        = __build_se_url(ARTICLES_PAGE)
+#"""
+#Full URL of the "All articles" page, _e.g._ it is something like this page:
+#`<http://ec.europa.eu/eurostat/statistics-explained/index.php/All_articles>`_.
+#"""
+
 GLOSSARIES_PAGE     = 'Thematic_glossaries'
 """
-Domain of the thematic glossaries.
+Domain of the "Thematic glossaries" page.
 """
-THEMES_PAGE         = 'Statistical_themes'
-"""
-Domain of the statistical themes.
-"""
+#GLOSSARIES_URL      = __build_se_url(GLOSSARIES_PAGE)
+#"""
+#Full URL of the "Thematic glossaries" page, _e.g._ it is something like this page:
+#`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Thematic_glossaries>`_.
+#"""
+
 CATEGORIES_PAGE     = 'Special:Categories'
 """
-Domain of the categories.
+Domain of the "Categories" page.
 """
+#CATEGORIES_URL      = __build_se_url(CATEGORIES_PAGE)
+#"""
+#Full URL of the "Categories" page, _e.g._ it is something like this page:
+#`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Special:Categories>`_.
+#"""
 
-SE_PAGE             = {'main':          MAIN_PAGE,
+CONCEPTS_PAGE       = 'Category:Statistical_concept'
+"""
+Domain of the "Statistical concepts" page.
+"""
+#CONCEPTS_URL        = __build_se_url(CONCEPTS_PAGE)
+#"""
+#Full URL of the "Statistical concepts" page, _e.g._ it is something like this page:
+#`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Statistical_concept>`_.
+#"""
+
+THEMES_PAGE         = 'Statistical_themes'
+"""
+Domain of the "Statistical themes" page.
+"""
+#THEMES_URL          = __build_se_url(THEMES_PAGE)
+#"""
+#Full URL of the "Statistical themes" page, _e.g._ it is something like this page:
+#`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Statistical_themes>`_.
+#"""
+
+SE_START_PAGES      = {'main':          MAIN_PAGE,
                        GLOSSARY_KEY:    GLOSSARIES_PAGE, 
                        CATEGORY_KEY:    CATEGORIES_PAGE, 
                        ARTICLE_KEY:     ARTICLES_PAGE, 
-                       THEME_KEY:       THEMES_PAGE
+                       THEME_KEY:       THEMES_PAGE,
+                       CONCEPT_KEY:     CONCEPTS_PAGE
                        }
+"""Dictionary of Statistics Explained main pages.
+"""
 
-# SE_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY]
+SE_START_URLS       =  {k: __build_se_url(v) for k, v in SE_START_PAGES.items()}
+"""Dictionary of Statistics Explained main URLs built upon the main pages defined
+in :var:`SE_START_PAGES`.
+"""
+
+WHATLINKSHERE_PAGE  = 'title=Special:WhatLinksHere'
+"""
+Domain of the "What link's here" pages.
+"""
+WHATLINKSHERE_URL   = __build_se_url(WHATLINKSHERE_PAGE)
+"""
+Full URL of the "What link's here" pages.
+"""
+WHATLINKSHERE_LIMIT = 500
+"""
+Upper limit of what can be displayed on a single "What link's here" page.
+"""
 
 GLOSSARY_DOMAIN     = 'Glossary:'
 """
+String used for naming the URL subdomains of glossary pages, _i.e._ those pages 
+that are referenced into the "Glossary" page.
 """
 CATEGORY_DOMAIN     = 'Category:'
 """
+String used for naming the URL subdomains of category pages, _i.e._ those pages 
+that are referenced into the "Category" page.
 """
 ARTICLE_DOMAIN      = ''
 """
+String used for naming the URL subdomains of article pages, _i.e._ those pages 
+that are referenced into the "All articles" page.
 """
 THEME_DOMAIN        = ''
 """
+String used for naming the URL subdomains of theme pages, _i.e._ those pages 
+that are referenced into the "Statistical themes" page.
+"""
+CONCEPT_DOMAIN      = GLOSSARY_DOMAIN
+"""
+String used for naming the URL subdomains of concept pages, _i.e._ those pages 
+that are referenced into the "Statistical concepts" page.
 """
 
 SE_KEYDOMAINS       = {GLOSSARY_KEY:    GLOSSARY_DOMAIN, 
                        CATEGORY_KEY:    CATEGORY_DOMAIN, 
                        ARTICLE_KEY:     ARTICLE_DOMAIN, 
-                       THEME_KEY:       THEME_DOMAIN
+                       THEME_KEY:       THEME_DOMAIN,
+                       CONCEPT_KEY:     CONCEPT_DOMAIN
                        }
+"""
+"""
 
 API_DOMAIN          = 'ec.europa.eu/eurostat/wdds/rest/data'
 """
@@ -149,14 +225,14 @@ Default language used when launching Eurostat API.
 #   http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #   http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME            = 'esscrape'
+BOT_NAME            = 'scrapyrostat'
 
-SPIDER_MODULES      = ['esscrape.spiders']
-NEWSPIDER_MODULE    = 'esscrape.spiders'
+SPIDER_MODULES      = ['scrapyrostat.spiders']
+NEWSPIDER_MODULE    = 'scrapyrostat.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT          = 'esscrape (+https://github.com/gjacopo)'
+USER_AGENT          = 'scrapyrostat (+https://github.com/gjacopo/scrapyrostat)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY      = True

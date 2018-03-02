@@ -12,7 +12,7 @@
 
 **Usage**
 
-    >>> from esscrape import items
+    >>> from scrapyrostat import items
 
 **Contents**
 
@@ -23,6 +23,7 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
+#%%
 import os, sys, re#analysis:ignore
 
 import scrapy 
@@ -71,9 +72,10 @@ except ImportError:
                 start = arg.find('<')
             return arg
 
-from . import essError, essWarning#analysis:ignore 
+from . import scrapyroError, scrapyroWarning#analysis:ignore 
 from . import settings#analysis:ignore
 
+#%%
 #==============================================================================
 # GLOBAL CLASSES/METHODS/
 #==============================================================================
@@ -147,16 +149,16 @@ class xpath():
         """
         ## default settings
         if last not in (None,'') and all([kw in (None,False,'') for kw in [preceding_sibling, preceding, ancestor, parent]]):
-            #warn(essWarning("Parameter PRECEDING set to True with LAST"))
+            #warn(scrapyroWarning("Parameter PRECEDING set to True with LAST"))
             preceding=True
         if first not in (None,'') and all([kw in (None,False,'') for kw in [following_sibling, following, child, descendant]]):
-            #warn(essWarning("Parameter CHILD set to True with FIRST"))
+            #warn(scrapyroWarning("Parameter CHILD set to True with FIRST"))
             child=True
         ## check
         if sum([kw not in ('', None) for kw in [preceding_sibling, preceding, ancestor, parent]]) > 1:
-            raise essError("Incompatible keyword parameters (PRECEDING, PRECEDING_SIBLING, ANCESTOR, PARENT)")        
+            raise scrapyroError("Incompatible keyword parameters (PRECEDING, PRECEDING_SIBLING, ANCESTOR, PARENT)")        
         elif sum([kw not in ('', None) for kw in [following_sibling, following, child, descendant]]) > 1:
-            raise essError("Incompatible keyword parameters (FOLLOWING, FOLLOWING_SIBLING, DESCENDANT, CHILD)")        
+            raise scrapyroError("Incompatible keyword parameters (FOLLOWING, FOLLOWING_SIBLING, DESCENDANT, CHILD)")        
         if sep not in (None,''):                    SEP=sep
         else:                                       SEP='/'
         PARENTSEP = SEP
@@ -170,12 +172,12 @@ class xpath():
         elif descendant in ('/', '//'):             descendant, CHILDSEP = True, descendant
         elif child in ('/', '//'):                  child, CHILDSEP = True, child
         if not (last in (None,'') or all([kw in (None,True,'') for kw in [preceding_sibling, preceding, parent, ancestor]])):
-            raise essError("Instructions for (PRECEDING, PRECEDING_SIBLING, PARENT, ANCESTOR) incompatible with keyword parameter LAST")
+            raise scrapyroError("Instructions for (PRECEDING, PRECEDING_SIBLING, PARENT, ANCESTOR) incompatible with keyword parameter LAST")
         elif last in (None,'') and all([kw in (None,True,'') for kw in [preceding_sibling, preceding, parent, ancestor]]):
             #esScrape("Instructions for (PRECEDING, PRECEDING_SIBLING, ANCESTOR, PARENT) ignored in absence of parameter LAST")
             preceding_sibling = preceding = parent = ancestor = None
         if not (first in (None,'') or all([kw in (None,True,'') for kw in [following_sibling, following, child, descendant]])):
-            raise essError("Instructions for (FOLLOWING, FOLLOWING_SIBLING, CHILD, DESCENDANT) incompatible with keyword parameter FIRST")
+            raise scrapyroError("Instructions for (FOLLOWING, FOLLOWING_SIBLING, CHILD, DESCENDANT) incompatible with keyword parameter FIRST")
         elif first in (None,'') and all([kw in (None,True,'') for kw in [following_sibling, following, child, descendant]]):
             # this may ignored in case the default setting on first above is actually run
             #esScrape("Parameters (FOLLOWING, FOLLOWING_SIBLING, DESCENDANT, CHILD) ignored in absence of parameter FIRST")
@@ -290,27 +292,33 @@ class xpath():
                 xrule = '%s%s' % (xrule, tag)   
         return xrule
 
+#%%
 #==============================================================================
 # GLOBAL VARIABLES
 #==============================================================================
-
-ARTICLE_FIELDS      = ['Title', 'Last_modified', 'Categories', 'Hidden_categories',
+        
+ARTICLE_FIELDS      = ['Title', 'Last_modified', 'Language',
+                       'Categories', 'Hidden_categories',
                        'Source_datasets', 'See_also', 'Publications', 'Main_tables', 
                        'Database', 'Dedicated_section', 'Metadata',
                        'Other_information', 'External_links']
 
-GLOSSARY_FIELDS     = ['Title', 'Last_modified', 'Categories', 'Text', 
+GLOSSARY_FIELDS     = ['Title', 'Last_modified', 'Language','Categories', 'Text', 
                        'Further_information', 'Related_concepts', 'Statistical_data']
 
-CATEGORY_FIELDS     = ['Title', 'Last_modified', 'Pages']
+CATEGORY_FIELDS     = ['Title', 'Last_modified', 'Language','Pages']
 
-THEME_FIELDS        = ['Title', 'Statistical_articles', 'Topics', 'Online_publications',
+THEME_FIELDS        = ['Title', 'Last_modified', 'Language', 
+                       'Statistical_articles', 'Topics', 'Online_publications',
                        'Overview', 'Background_articles', 'Glossary']
+
+CONCEPT_FIELDS      = []
 
 SE_FIELDS           = {settings.GLOSSARY_KEY:   GLOSSARY_FIELDS,
                        settings.CATEGORY_KEY:   CATEGORY_FIELDS,
                        settings.ARTICLE_KEY:    ARTICLE_FIELDS,
-                       settings.THEME_KEY:      THEME_FIELDS}
+                       settings.THEME_KEY:      THEME_FIELDS,
+                       settings.CONCEPT_KEY:      CONCEPT_FIELDS}
 
 try:
     assert ARTICLE_PATHS
@@ -333,6 +341,11 @@ except (NameError,AssertionError):
                      sep='//')
     # that is actually:    
     #   '//div[@id="footer"]//li[@id="lastmod"]//text()'    
+    ## Language
+    ARTICLE_PATHS['Language'] =                                 \
+        xpath.create(node='html',                            
+                     tag='@lang')
+    # nothing else than: '//html/@lang'
     ## Categories
     ARTICLE_PATHS['Categories'] =                               \
         xpath.create(first='div',                                    
@@ -472,7 +485,7 @@ except (NameError,AssertionError):
     # note that this will work as well:
     #   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Other_information]]//li/a/@href'
 #else:
-#    warn(essWarning("Glocal variable ARTICLE_PATHS already defined"))
+#    warn(scrapyroWarning("Glocal variable ARTICLE_PATHS already defined"))
             
 try:
     assert ARTICLE_PROCESSORS
@@ -482,6 +495,9 @@ except (NameError,AssertionError):
     ARTICLE_PROCESSORS['Title'] =                               \
         {'in':  TakeFirst(),
          'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Language'] =                            \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
     ARTICLE_PROCESSORS['Last_modified'] =                       \
         {'in':  Compose(_remove_tags, TakeFirst()),
          'out': _find_dates} 
@@ -515,11 +531,11 @@ except (NameError,AssertionError):
     ARTICLE_PROCESSORS['External_links'] =                      \
         {'in':  _default_input_processor,
          'out': _default_output_processor}
-    ARTICLE_PROCESSORS['Other_information'] =                    \
+    ARTICLE_PROCESSORS['Other_information'] =                   \
         {'in':  _default_input_processor,
          'out': _default_output_processor}
 #else:
-#    warn(essWarning("Glocal variable ARTICLE_PROCESSORS already defined"))        
+#    warn(scrapyroWarning("Glocal variable ARTICLE_PROCESSORS already defined"))        
     
 #%%
 ## Glossary pages
@@ -541,6 +557,11 @@ except (NameError,AssertionError):
                      tag='text()[normalize-space(.)]')
     # that is:
     #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'    
+    ## Language
+    GLOSSARY_PATHS['Language'] =                                \
+        xpath.create(node='html',                            
+                     tag='@lang')
+    # nothing else than: '//html/@lang'
     ## Last_modified
     GLOSSARY_PATHS['Last_modified'] =                           \
         xpath.create(node='div[@id="footer"]',                            
@@ -619,6 +640,9 @@ except (NameError,AssertionError):
     GLOSSARY_PROCESSORS['Title'] =                              \
         {'in':  TakeFirst(),
          'out': _default_output_processor} 
+    GLOSSARY_PROCESSORS['Language'] =                           \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
     GLOSSARY_PROCESSORS['Last_modified'] =                      \
         {'in':  Compose(_remove_tags, TakeFirst()),
          'out': _find_dates} 
@@ -659,6 +683,11 @@ except (NameError,AssertionError):
                      tag='text()[normalize-space(.)]')
     # that is:
     #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'    
+    ## Language
+    CATEGORY_PATHS['Language'] =                                \
+        xpath.create(node='html',                            
+                     tag='@lang')
+    # nothing else than: '//html/@lang'
     ## Last_modified
     #    <div id="footer" role="contentinfo">
     #	<ul id="f-list" class="list-inline">
@@ -689,6 +718,9 @@ except (NameError,AssertionError):
     CATEGORY_PROCESSORS['Title'] =                              \
         {'in':  TakeFirst(),
          'out': _default_output_processor} 
+    CATEGORY_PROCESSORS['Language'] =                           \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
     CATEGORY_PROCESSORS['Last_modified'] =                      \
         {'in':  Compose(_remove_tags, TakeFirst()),
          'out': _find_dates} 
@@ -710,6 +742,11 @@ except (NameError,AssertionError):
                      tag='text()[normalize-space(.)]')
     # that is:
     #   '//h1[@id="firstHeading"]/text()[normalize-space(.)]'    
+    ## Language
+    THEME_PATHS['Language'] =                                   \
+        xpath.create(node='html',                            
+                     tag='@lang')
+    # nothing else than: '//html/@lang'
     ## Last_modified
     #THEME_PATHS['Last_modified'] =                             \
     ## Statistical_articles
@@ -784,7 +821,10 @@ except (NameError,AssertionError):
     THEME_PROCESSORS['Title'] =                                 \
         {'in':  TakeFirst(),
          'out': _default_output_processor} 
-    #THEME_PROCESSORS['Last_modified'] =                        \
+    THEME_PROCESSORS['Language'] =                              \
+        {'in':  TakeFirst(),
+         'out': _default_output_processor} 
+     #THEME_PROCESSORS['Last_modified'] =                        \
     #    {'in':  Compose(_remove_tags, TakeFirst()),
     #     'out': _find_dates} 
     THEME_PROCESSORS['Statistical_articles'] =                  \
@@ -805,20 +845,97 @@ except (NameError,AssertionError):
     THEME_PROCESSORS['Glossary'] =                              \
         {'in': _default_input_processor,
          'out': _default_output_processor} 
-    
 
 try:
     assert WHATLINKS_PATHS
     assert not (WHATLINKS_PATHS in (None,{}) or all([v in ([],'',None) for v in WHATLINKS_PATHS.values()]))
 except (NameError,AssertionError):
     WHATLINKS_PATHS = {}
-    WHATLINKS_PATHS['Links'] =                                    \
+    ## Links
+    WHATLINKS_PATHS['Links'] =                                  \
         xpath.create(first='ul[@id="mw-whatlinkshere-list"]',
-                     tag='li/a[not(@title="Special:WhatLinksHere")]/@href',
+                     tag='li/a[1]/@href',
+                     # tag='li/a[not(@title="Special:WhatLinksHere")]/@href',
                      child=True,
                      sep='//')
-# '//ul[@id="mw-whatlinkshere-list"]//li/a[not(@title="Special:WhatLinksHere")]/@href'
+        # '//ul[@id="mw-whatlinkshere-list"]//li/a[1]/@href'
+    ## Language
+    WHATLINKS_PATHS['Language'] =                               \
+        xpath.create(node='html',                            
+                     tag='@lang')
+    # nothing else than: '//html/@lang'
 
+# xpath for specific scraping of the "Statistical themes" webpage. e.g. 
+# http://ec.europa.eu/eurostat/statistics-explained/index.php/Statistical_themes
+try:
+    assert THEMES_PAGE_PATHS
+    assert not (THEMES_PAGE_PATHS in (None,{}) or all([v in ([],'',None) for v in THEMES_PAGE_PATHS.values()]))
+except (NameError,AssertionError):
+    THEMES_PAGE_PATHS = {}
+    THEMES_PAGE_PATHS['Themes'] =                               \
+        xpath.create(first='h3[@class="panel-title"]',
+                     tag='a/@href',
+                     descendant=True)
+    # that is:
+    #   '//h3[@class="panel-title"]//descendant::a/@href'
+    THEMES_PAGE_PATHS['Subthemes'] =                            \
+        xpath.create(node='h1[@id="firstHeading"]', # h1[normalize-space(text())="Statistical themes"]
+                     tag='a/@href',
+                     following='div[@class="panel-body"]',
+                     sep='//')
+    # that is:
+    #   '//h1[@id="firstHeading"]//following::div[@class="panel-body"]//a/@href'
+
+# xpath for specific scraping of the "All articles" webpage. e.g. 
+# http://ec.europa.eu/eurostat/statistics-explained/index.php/All_articles
+try:
+    assert ARTICLES_PAGE_PATHS
+    assert not (ARTICLES_PAGE_PATHS in (None,{}) or all([v in ([],'',None) for v in ARTICLES_PAGE_PATHS.values()]))
+except (NameError,AssertionError):
+    ARTICLES_PAGE_PATHS = {}
+    # check: the paths are exactly as those used for STATISTICAL_THEMES_PATHS
+    ARTICLES_PAGE_PATHS['Themes'] =                              \
+        xpath.create(first='h3[@class="panel-title"]',
+                     tag='a/@href',
+                     descendant=True)
+    # that is:
+    #   '//h3[@class="panel-title"]//descendant::a/@href'
+    ARTICLES_PAGE_PATHS['Subthemes'] =                           \
+        xpath.create(node='h1[@id="firstHeading"]', # h1[normalize-space(text())="Statistical themes and subthemes"]
+                     tag='a/@href',
+                     following='div[@class="panel-body"]',
+                     sep='//')
+    # that is:
+    #   '//h1[@id="firstHeading"]//following::div[@class="panel-body"]//a/@href'
+
+# xpath for specific scraping of the "Thematic glossaries" webpage. e.g. 
+# http://ec.europa.eu/eurostat/statistics-explained/index.php/Thematic_glossaries
+try:
+    assert GLOSSARIES_PAGE_PATHS
+    assert not (GLOSSARIES_PAGE_PATHS in (None,{}) or all([v in ([],'',None) for v in GLOSSARIES_PAGE_PATHS.values()]))
+except (NameError,AssertionError):
+    GLOSSARIES_PAGE_PATHS = {}
+    # check: the paths are exactly as those used for STATISTICAL_THEMES_PATHS
+    GLOSSARIES_PAGE_PATHS['Themes'] =                           \
+        xpath.create(first='h3[@class="panel-title"]',
+                     tag='a/@href',
+                     descendant=True)
+    # that is:
+    #   '//h3[@class="panel-title"]//descendant::a/@href'
+    GLOSSARIES_PAGE_PATHS['Subthemes'] =                        \
+        xpath.create(node='h1[@id="firstHeading"]', # h1[normalize-space(text())="Statistical themes and subthemes"]
+                     tag='a/@href',
+                     following='div[@class="panel-body"]',
+                     sep='//')
+    # that is:
+    #   '//h1[@id="firstHeading"]//following::div[@class="panel-body"]//a/@href'
+    GLOSSARIES_PAGE_PATHS['Special_topic'] =                     \
+        xpath.create(node='h2[span[@id="Special-topic_glossaries"]]',
+                     tag='a/@href',
+                     following='table/tr/td',
+                     sep='//')
+    # that is:
+    #   '//h2[span[@id="Special-topic_glossaries"]]//following::table/tr/td//a/@href'
 
 SE_PATHS            = {settings.GLOSSARY_KEY:   GLOSSARY_PATHS,
                        settings.CATEGORY_KEY:   CATEGORY_PATHS,
@@ -830,6 +947,9 @@ SE_PROCESSORS       = {settings.GLOSSARY_KEY:   GLOSSARY_PROCESSORS,
                        settings.ARTICLE_KEY:    ARTICLE_PROCESSORS,
                        settings.THEME_KEY:      THEME_PROCESSORS}
 
+
+
+#%%
 #==============================================================================
 # ITEM CLASSES
 #==============================================================================
@@ -873,7 +993,7 @@ WhatLinksItem = __base_item_class('WhatLinksItem', WHATLINKS_PATHS)
 #    _allowed_keys = []   
 #    def __setitem__(self, key, value):
 #        if key not in self._allowed_keys:
-#            raise essError("Key %s not supported for glossary item" % key)
+#            raise scrapyroError("Key %s not supported for glossary item" % key)
 #        if key not in self.fields:
 #            self.fields[key] = scrapy.Field(
 #                            input_processor=self.processors[key]['in'],
@@ -903,6 +1023,7 @@ SE_ITEMS            = {settings.GLOSSARY_KEY:   GlossaryItem,
                        settings.ARTICLE_KEY:    ArticleItem,
                        settings.THEME_KEY:      ThemeItem}
 
+#%%
 #==============================================================================
 # ITEMLOADER CLASSES
 #==============================================================================

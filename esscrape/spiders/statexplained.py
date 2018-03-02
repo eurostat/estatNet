@@ -35,14 +35,21 @@ try:
     assert not (PAGE_CHECK in (None,{}) or all([v in ([],'',None) for v in PAGE_CHECK.values()]))
 except (NameError,AssertionError):
     PAGE_CHECK = {}
-    PAGE_CHECK['article']   = '//h2[span[contains(text()[normalize-space(.)], "Further Eurostat information")]] \
-                                      | //h2[span[contains(text()[normalize-space(.)], "See also")]] \
-                                      | //h3[span[contains(text()[normalize-space(.)], "Dedicated section")]]'
-    PAGE_CHECK['glossary']  = '//h2[span[contains(text()[normalize-space(.)], "Related concepts")]] \
-                                      | //h2[span[contains(text()[normalize-space(.)], "Statistical data")]]'
-    PAGE_CHECK['category']  = '//h2[starts-with(text()[normalize-space(.)], "Pages in category")]'
-    PAGE_CHECK['theme']     = '//h2[span[@id="Statistical_articles"]]//text()'
-              
+    PAGE_CHECK[settings.ARTICLE_KEY] =                          \
+        '//h2[span[contains(normalize-space(text()), "Further Eurostat information")]] \
+            | //h2[span[contains(normalize-space(text()), "See also")]] \
+            | //h3[span[contains(normalize-space(text()), "Dedicated section")]]'
+    PAGE_CHECK[settings.GLOSSARY_KEY] =                         \
+        '//h1[@id="firstHeading"][starts-with(normalize-space(text()), "Glossary")]   \
+            | //h2[span[contains(normalize-space(text()), "Related concepts")]] \
+            | //h2[span[contains(normalize-space(text()), "Statistical data")]]'
+    PAGE_CHECK[settings.CATEGORY_KEY] =                         \
+        '//h1[@id="firstHeading"][starts-with(normalize-space(text()), "Category")]   \
+            | //h2[starts-with(normalize-space(text()), "Pages in category")]'
+    PAGE_CHECK[settings.THEME_KEY] =                            \
+        '//h2[span[@id="Statistical_articles"]]//text()'
+    PAGE_CHECK[settings.CONCEPT_KEY] =                          \
+        PAGE_CHECK[settings.GLOSSARY_KEY]
 
 #==============================================================================
 # COMMON METHODS
@@ -76,7 +83,7 @@ def __identify_page(self, response, page):
 # GLOBAL CLASSES/METHODS/
 #==============================================================================
     
-class SEWhatLinksHere(scrapy.Spider):
+class WhatLinksHere(scrapy.Spider):
     name = "WhatLinksHere"
     allowed_domains = [settings.SE_MAINURL] 
     
@@ -86,7 +93,7 @@ class SEWhatLinksHere(scrapy.Spider):
     
     def __init__(self, page, *args, **kwargs):
         self.npages, self.nlinks = kwargs.pop('npages', -1), kwargs.pop('nlinks', -1)
-        super(SEWhatLinksHere, self).__init__(*args, **kwargs)
+        super(WhatLinksHere, self).__init__(*args, **kwargs)
         if page is None:
            raise essError("Name of destination page is missing")
         elif not isinstance(page, (list, tuple)):
@@ -112,7 +119,7 @@ class SEWhatLinksHere(scrapy.Spider):
             next_page = response.urljoin(next_page)
             yield scrapy.Request(self.url_whatlinkshere(next_page), callback=self.parse_whatlinkshere)
             
-class SESpider(scrapy.Spider):
+class Spider(scrapy.Spider):
     name = "StatisticalExplained"
     allowed_domains = [settings.SE_MAINURL] 
 
@@ -129,7 +136,7 @@ class SESpider(scrapy.Spider):
             self.start_urls = ['%s/%s%s' % (settings.SE_MAINURL, settings.SE_KEYDOMAINS[attr[0]], attr[1])]            
         else:
             self.start_urls = ['%s/%s' % (settings.SE_MAINURL, settings.CATEGORIES_DOMAIN)]
-        super(SESpider, self).__init__(*args, **kwargs)
+        super(Spider, self).__init__(*args, **kwargs)
         
     #def start_requests(self):
     #    yield scrapy.Request( )
