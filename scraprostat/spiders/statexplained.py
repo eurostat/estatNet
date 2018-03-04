@@ -18,14 +18,23 @@ Basic definitions for Eurobase scraping/indexing spider.
 
 import scrapy
 
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import Spider, CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader.processors import TakeFirst
 
-from .. import essError, essWarning#analysis:ignore 
-from .. import settings
-from .. import items
+from collections import Mapping
 
+from .. import scrapError, scrapWarning#analysis:ignore 
+from ..settings import DEF_LANG, SE_MAINURL, SE_KEYS, SE_KEYDOMAINS, \
+    ARTICLE_KEY, GLOSSARY_KEY, CATEGORY_KEY, THEME_KEY, CONCEPT_KEY,                \
+    ARTICLE_DOMAIN, GLOSSARY_DOMAIN, CATEGORY_DOMAIN, THEME_DOMAIN, CONCEPT_DOMAIN, \
+    SE_START_PAGES,                                                                 \
+    WHATLINKSHERE_URL, WHATLINKSHERE_LIMIT                                          \
+    
+import items
+from ..items import GLOSSARY_PATHS, SE_PAGES_PATHS, SE_START_PAGES_PATHS, WHATLINKS
+
+#%%
 #==============================================================================
 # GLOBAL VARIABLES
 #==============================================================================
@@ -35,40 +44,41 @@ try:
     assert not (PAGE_CHECK in (None,{}) or all([v in ([],'',None) for v in PAGE_CHECK.values()]))
 except (NameError,AssertionError):
     PAGE_CHECK = {}
-    PAGE_CHECK[settings.ARTICLE_KEY] =                          \
+    PAGE_CHECK[ARTICLE_KEY] =                                   \
         '//h2[span[contains(normalize-space(text()), "Further Eurostat information")]] \
             | //h2[span[contains(normalize-space(text()), "See also")]] \
             | //h3[span[contains(normalize-space(text()), "Dedicated section")]]'
-    PAGE_CHECK[settings.GLOSSARY_KEY] =                         \
+    PAGE_CHECK[GLOSSARY_KEY] =                                  \
         '//h1[@id="firstHeading"][starts-with(normalize-space(text()), "Glossary")]   \
             | //h2[span[contains(normalize-space(text()), "Related concepts")]] \
             | //h2[span[contains(normalize-space(text()), "Statistical data")]]'
-    PAGE_CHECK[settings.CATEGORY_KEY] =                         \
+    PAGE_CHECK[CATEGORY_KEY] =                                  \
         '//h1[@id="firstHeading"][starts-with(normalize-space(text()), "Category")]   \
             | //h2[starts-with(normalize-space(text()), "Pages in category")]'
-    PAGE_CHECK[settings.THEME_KEY] =                            \
+    PAGE_CHECK[THEME_KEY] =                                     \
         '//h2[span[@id="Statistical_articles"]]//text()'
-    PAGE_CHECK[settings.CONCEPT_KEY] =                          \
-        PAGE_CHECK[settings.GLOSSARY_KEY]
+    PAGE_CHECK[CONCEPT_KEY] =                                   \
+        PAGE_CHECK[GLOSSARY_KEY]
 
+#%%
 #==============================================================================
 # COMMON METHODS
 #==============================================================================
 
-def __check_page(self, response, page):
-    if not page in settings.SE_KEYDOMAINS:
-        raise essError("Page type %s not recognised as any from Eurostat website" % page)
+def __check_page(response, page):
+    if not page in SE_KEYDOMAINS:
+        raise scrapError("Page type %s not recognised as any from Eurostat website" % page)
     else:
-        domain = settings.SE_KEYDOMAINS[page]
+        domain = SE_KEYDOMAINS[page]
     if domain not in (None,'',[]):
         return response.url.startswith(domain)
     else:
         return TakeFirst()(response.xpath(PAGE_CHECK[page])) is not None
         
         
-def __identify_page(self, response, page):        
+def __identify_page(response):        
     res = False
-    for (page,domain) in settings.SE_KEYDOMAINS.items():
+    for (page,domain) in SE_KEYDOMAINS.items():
         if domain not in (None,'',[]):
             res = response.url.startswith(domain)
         else:
@@ -79,28 +89,32 @@ def __identify_page(self, response, page):
         #warn(essWarning("Page %s not recognised as a standard type" % response.url))
         return None
         
+def __remove_link(path):
+    return path.replace('/a/@href','') # we should use a regex here...    
+    
+#%%
 #==============================================================================
 # GLOBAL CLASSES/METHODS/
 #==============================================================================
     
-class WhatLinksHere(scrapy.Spider):
+class WhatLinksSpider(Spider):
     name = "WhatLinksHere"
-    allowed_domains = [settings.SE_MAINURL] 
+    allowed_domains = [SE_MAINURL] 
     
     @staticmethod
     def url_whatlinkshere(page):
-        return '%s/%s&limit=%s' % (settings.WHATLINKSHERE_URL, page, settings.WHATLINKSHERE_LIMIT)
+        return '%s/%s&limit=%s' % (WHATLINKSHERE_URL, page, WHATLINKSHERE_LIMIT)
     
     def __init__(self, page, *args, **kwargs):
         self.npages, self.nlinks = kwargs.pop('npages', -1), kwargs.pop('nlinks', -1)
-        super(WhatLinksHere, self).__init__(*args, **kwargs)
         if page is None:
-           raise essError("Name of destination page is missing")
+           raise scrapError("Name of destination page is missing")
         elif not isinstance(page, (list, tuple)):
             page = page[0]
         if self.start_urls is None:
             self.start_urls = []
         [self.start_urls.append(self.url_whatlinkshere(p)) for p in page]
+        super(WhatLinksSpider, self).__init__(*args, **kwargs)
     
     def start_requests(self):
         #for page in self.page:
@@ -111,7 +125,7 @@ class WhatLinksHere(scrapy.Spider):
     def parse_whatlinkshere(self, response):
         self.logger.info('Exploring what links to %s...', response.url)
         # if response.status :
-        next_pages = response.xpath(items.WHATLINKS['Links']).extract()
+        next_pages = response.xpath(WHATLINKS['Links']).extract()
         whatlink = items.WhatLinksItem(response=response)
         [whatlink.add_xpath(key, whatlink.paths[key]) for key in whatlink.fields]
         yield whatlink
@@ -119,29 +133,62 @@ class WhatLinksHere(scrapy.Spider):
             next_page = response.urljoin(next_page)
             yield scrapy.Request(self.url_whatlinkshere(next_page), callback=self.parse_whatlinkshere)
             
-class Spider(scrapy.Spider):
-    name = "StatisticalExplained"
-    allowed_domains = [settings.SE_MAINURL] 
+            
+class PageCrawler(CrawlSpider):
+    name = "PageExplained"
+    allowed_domains = [SE_MAINURL]  # [settings.ESTAT_URL]
+    allowed_arguments = [key for key in SE_KEYS if key!=ARTICLE_KEY]
 
-    def __init__(self, *args, **kwargs):
-        attr = [(k, kwargs.pop(k)) for k in settings.SE_KEYDOMAINS if kwargs.get(k) is not None]
-        if len(attr) > 1:
-           raise essError("Only one key among %s can be accepted" % settings.SE_KEYDOMAINS)
-        elif len(attr) == 1:
-            attr = attr[0]
-            # # normally, the default super.__init__ method which takes any spider 
-            # # arguments and copies them to the spider as attributes, however we
-            # # filter the kwargs, so we have to create the attribute manually
-            # # setattr(self, attr[0], attr[1])
-            self.start_urls = ['%s/%s%s' % (settings.SE_MAINURL, settings.SE_KEYDOMAINS[attr[0]], attr[1])]            
+    # this spider has one rule per type of page scraped: extract all (unique and 
+    # canonicalized) links, follow them and parse them using the dedicated parse
+    # method
+    rules = (
+        Rule(LinkExtractor(restrict_xpath=__remove_link(SE_PAGES_PATHS[key]['Links']), 
+                           allow=r"^" + SE_MAINURL + SE_KEYDOMAINS[key],
+                           deny=[r"^" + SE_MAINURL + SE_KEYDOMAINS[_]   \
+                                 for _ in SE_KEYDOMAINS.keys()          \
+                                 if _!=key and SE_KEYDOMAINS[_]!='']), 
+             callback="_parse_%s" % key )
+        for key in allowed_arguments
+        )
+
+    def __init__(self, pages=None, *args, **kwargs):
+        self.lang, self.maxdepth = kwargs.pop('lang', DEF_LANG), kwargs.pop('depth',0)
+        if pages in (None,{},[]):
+            pages = self.allowed_argments # 'main' instesad ? 
+        if isinstance(pages,str) and pages in self.allowed_arguments:
+            pages = {pages: True}
+        elif isinstance(pages,(list,tuple))     \
+                and set(pages).difference(set(self.allowed_arguments)) == set({}):
+            pages = {(key,True) for key in self.allowed_arguments} # {'main': True} ? 
+        elif not isinstance(pages,Mapping)      \
+                or set(pages.keys()).difference(set(self.allowed_arguments)) != set({}):
+            raise scrapError('wrong settings for PAGES parameter')
+        #if set(self.allowed_argments).intersection(set(pages.keys())) == set({}):
+        #    warning.warn(scrapWarning('nothing to scrape!'))
+        #    return
+        self.start_urls = []
+        [self.start_urls.append(SE_START_PAGES[key] if val is True  
+                                else '%s/%s%S' % (SE_MAINURL, SE_KEYDOMAINS[key], val))
+            for (key,val) in pages.items() ] 
+        super(PageCrawler, self).__init__(*args, **kwargs)
+
+    # Method which starts the requests by visiting all URLs specified in start_urls
+    def start_requests(self):
+        for url in self.start_urls:
+            yield scrapy.Request(url, callback=self.parse, dont_filter=True)
+
+    def parse_start_url(self, response):
+        key = __identify_page(response) 
+        if response.url == SE_START_PAGES[key]:
+            links = response.xpath(SE_START_PAGES_PATHS[key]['Links'])
         else:
-            self.start_urls = ['%s/%s' % (settings.SE_MAINURL, settings.CATEGORIES_DOMAIN)]
-        super(Spider, self).__init__(*args, **kwargs)
-        
-    #def start_requests(self):
-    #    yield scrapy.Request( )
+            links = response.xpath(SE_PAGES_PATHS[key]['Links'])
+        for link in links:
+            yield scrapy.Request(link, callback=self.parse) # ???? 
     
-    @staticmethod
+        
+    @classmethod
     def _parse_loader(cls, response):
         l = cls(response=response)
         [l.add_xpath(key, l.item._paths[key]) for key in l.item._allowed_keys]
@@ -150,11 +197,11 @@ class Spider(scrapy.Spider):
     def parse_item(self, response):
         self.logger.info('%s', response.url)
         title = response.url.split('/')[-1]
-        if title.startswith(settings.GLOSSARY_SUBDOMAIN):
+        if title.startswith(GLOSSARY_DOMAIN):
             yield self._parse_loader(items.GlossaryItemLoader, response)
-        elif title.startswith(settings.CATEGORY_SUBDOMAIN):
+        elif title.startswith(CATEGORY_DOMAIN):
             yield self._parse_loader(items.CategoryItemLoader, response)
-        elif title.startswith(settings.ARTICLE_SUBDOMAIN):
+        elif title.startswith(ARTICLE_DOMAIN):
             yield self._parse_loader(items.ArticleItemLoader, response)
         
     def _parse_category(self, response):
@@ -186,54 +233,3 @@ class Spider(scrapy.Spider):
     #    for url in urls:
     #        yield scrapy.Request(url=url, callback=self.parse)
     
-              
-#class StatExplainedCrawler(scrapy.CrawlSpider):
-#    name = "StatExplained"
-#    allowed_domains = settings.ESTAT_URL
-#    start_urls = settings.SE_MAINURL
-#
-#
-#    rules = (
-#        Rule(LinkExtractor(restrict_xpath="//ul[@class='nav nav-list']/li/ul/li/a"), follow=True),
-#        Rule(LinkExtractor(restrict_xpath="//article[@class='product_pod']/h3/a"), callback="parse_book")
-#    )
-#    
-#
-#    # This spider has one rule: extract all (unique and canonicalized) links, follow them and parse them using the parse_items method
-#    rules = [
-#        Rule(
-#            LinkExtractor(
-#                canonicalize=True,
-#                unique=True
-#            ),
-#            follow=True,
-#            callback="parse_items"
-#        )
-#    ]
-#
-#    # Method which starts the requests by visiting all URLs specified in start_urls
-#    def start_requests(self):
-#        for url in self.start_urls:
-#            yield scrapy.Request(url, callback=self.parse, dont_filter=True)
-#
-#    # Method for parsing items
-#    def parse_items(self, response):
-#        # The list of items that are found on the particular page
-#        items = []
-#        # Only extract canonicalized and unique links (with respect to the current page)
-#        links = LinkExtractor(canonicalize=True, unique=True).extract_links(response)
-#        # Now go through all the found links
-#        for link in links:
-#            # Check whether the domain of the URL of the link is allowed; so whether it is in one of the allowed domains
-#            is_allowed = False
-#            for allowed_domain in self.allowed_domains:
-#                if allowed_domain in link.url:
-#                    is_allowed = True
-#            # If it is allowed, create a new item and add it to the list of found items
-#            if is_allowed:
-#                item = DatabloggerScraperItem()
-#                item['url_from'] = response.url
-#                item['url_to'] = link.url
-#                items.append(item)
-#        # Return all the found items
-#        return items
