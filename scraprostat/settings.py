@@ -113,6 +113,13 @@ CATEGORIES_PAGE     = 'Special:Categories'
 """
 Domain of the "Categories" page.
 """
+CATEGORIES_LIMIT = 1000 # dirty ;)
+"""
+Upper limit of what can be displayed on a single "categories" page: we need to
+ensure that all category links are read on a single page.
+"""
+# actually we cheet here: let us update the page with the upper limit
+CATEGORIES_PAGE     = 'title=%s&offset=&limit=%s' % (CATEGORIES_PAGE, CATEGORIES_LIMIT)
 #CATEGORIES_URL      = __build_se_url(CATEGORIES_PAGE)
 #"""
 #Full URL of the "Categories" page, _e.g._ it is something like this page:
@@ -154,18 +161,22 @@ SE_START_URLS       =  {k: __build_se_url(v) for k, v in SE_START_PAGES.items()}
 in :var:`SE_START_PAGES`.
 """
 
-WHATLINKSHERE_PAGE  = 'title=Special:WhatLinksHere'
+WHATLINKSHERE_PAGE  = 'Special:WhatLinksHere'
 """
 Domain of the "What link's here" pages.
 """
-WHATLINKSHERE_URL   = __build_se_url(WHATLINKSHERE_PAGE)
+WHATLINKSHERE_LIMIT = 1000
 """
-Full URL of the "What link's here" pages.
+Upper limit of what can be displayed on a single "What link's here" page: we need 
+to ensure that all links are available on a single page.
 """
-WHATLINKSHERE_LIMIT = 500
+WHATLINKSHERE_URL   = __build_se_url('title=%s' % WHATLINKSHERE_PAGE)
 """
-Upper limit of what can be displayed on a single "What link's here" page.
+Partial (initial) URL of the "What link's here" pages.
 """
+# what links to the page MYPAGE will be retrieved by the following URL:
+# page = __build_se_url('title=%s/%s&limit=%s' % (WHATLINKSHERE_PAGE, MYPAGE, WHATLINKSHERE_LIMIT))
+#      = '%s/%s&limit=%s' % (WHATLINKSHERE_URL, MYPAGE, WHATLINKSHERE_LIMIT)
 
 GLOSSARY_DOMAIN     = 'Glossary:'
 """

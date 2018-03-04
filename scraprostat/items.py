@@ -12,7 +12,7 @@
 
 **Usage**
 
-    >>> from scrapyrostat import items
+    >>> from scraprostat import items
 
 **Contents**
 
@@ -72,7 +72,7 @@ except ImportError:
                 start = arg.find('<')
             return arg
 
-from . import scrapyroError, scrapyroWarning#analysis:ignore 
+from . import scrapError, scrapWarning#analysis:ignore 
 from . import settings#analysis:ignore
 
 #%%
@@ -156,9 +156,9 @@ class xpath():
             child=True
         ## check
         if sum([kw not in ('', None) for kw in [preceding_sibling, preceding, ancestor, parent]]) > 1:
-            raise scrapyroError("Incompatible keyword parameters (PRECEDING, PRECEDING_SIBLING, ANCESTOR, PARENT)")        
+            raise scrapError("Incompatible keyword parameters (PRECEDING, PRECEDING_SIBLING, ANCESTOR, PARENT)")        
         elif sum([kw not in ('', None) for kw in [following_sibling, following, child, descendant]]) > 1:
-            raise scrapyroError("Incompatible keyword parameters (FOLLOWING, FOLLOWING_SIBLING, DESCENDANT, CHILD)")        
+            raise scrapError("Incompatible keyword parameters (FOLLOWING, FOLLOWING_SIBLING, DESCENDANT, CHILD)")        
         if sep not in (None,''):                    SEP=sep
         else:                                       SEP='/'
         PARENTSEP = SEP
@@ -172,12 +172,12 @@ class xpath():
         elif descendant in ('/', '//'):             descendant, CHILDSEP = True, descendant
         elif child in ('/', '//'):                  child, CHILDSEP = True, child
         if not (last in (None,'') or all([kw in (None,True,'') for kw in [preceding_sibling, preceding, parent, ancestor]])):
-            raise scrapyroError("Instructions for (PRECEDING, PRECEDING_SIBLING, PARENT, ANCESTOR) incompatible with keyword parameter LAST")
+            raise scrapError("Instructions for (PRECEDING, PRECEDING_SIBLING, PARENT, ANCESTOR) incompatible with keyword parameter LAST")
         elif last in (None,'') and all([kw in (None,True,'') for kw in [preceding_sibling, preceding, parent, ancestor]]):
             #esScrape("Instructions for (PRECEDING, PRECEDING_SIBLING, ANCESTOR, PARENT) ignored in absence of parameter LAST")
             preceding_sibling = preceding = parent = ancestor = None
         if not (first in (None,'') or all([kw in (None,True,'') for kw in [following_sibling, following, child, descendant]])):
-            raise scrapyroError("Instructions for (FOLLOWING, FOLLOWING_SIBLING, CHILD, DESCENDANT) incompatible with keyword parameter FIRST")
+            raise scrapError("Instructions for (FOLLOWING, FOLLOWING_SIBLING, CHILD, DESCENDANT) incompatible with keyword parameter FIRST")
         elif first in (None,'') and all([kw in (None,True,'') for kw in [following_sibling, following, child, descendant]]):
             # this may ignored in case the default setting on first above is actually run
             #esScrape("Parameters (FOLLOWING, FOLLOWING_SIBLING, DESCENDANT, CHILD) ignored in absence of parameter FIRST")
@@ -297,28 +297,31 @@ class xpath():
 # GLOBAL VARIABLES
 #==============================================================================
         
-ARTICLE_FIELDS      = ['Title', 'Last_modified', 'Language',
+ARTICLE_FIELDS      = ['Links', 'Title', 'Last_modified', 'Language',
                        'Categories', 'Hidden_categories',
                        'Source_datasets', 'See_also', 'Publications', 'Main_tables', 
                        'Database', 'Dedicated_section', 'Metadata',
                        'Other_information', 'External_links']
 
-GLOSSARY_FIELDS     = ['Title', 'Last_modified', 'Language','Categories', 'Text', 
-                       'Further_information', 'Related_concepts', 'Statistical_data']
+GLOSSARY_FIELDS     = ['Links', 'Title', 'Last_modified', 'Language','Categories',  
+                       'Text', 'Further_information', 'Related_concepts', 'Statistical_data']
 
-CATEGORY_FIELDS     = ['Title', 'Last_modified', 'Language','Pages']
+CATEGORY_FIELDS     = ['Links', 'Title', 'Last_modified', 'Language','Pages']
 
-THEME_FIELDS        = ['Title', 'Last_modified', 'Language', 
+THEME_FIELDS        = ['Links', 'Title', 'Last_modified', 'Language', 
                        'Statistical_articles', 'Topics', 'Online_publications',
                        'Overview', 'Background_articles', 'Glossary']
 
-CONCEPT_FIELDS      = []
+CONCEPT_FIELDS      = GLOSSARY_FIELDS
 
 SE_FIELDS           = {settings.GLOSSARY_KEY:   GLOSSARY_FIELDS,
                        settings.CATEGORY_KEY:   CATEGORY_FIELDS,
                        settings.ARTICLE_KEY:    ARTICLE_FIELDS,
                        settings.THEME_KEY:      THEME_FIELDS,
                        settings.CONCEPT_KEY:      CONCEPT_FIELDS}
+
+#%%
+## definition of ARTICLE paths and processors
 
 try:
     assert ARTICLE_PATHS
@@ -484,6 +487,7 @@ except (NameError,AssertionError):
     #   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Other_information"]]]//li/a/@href'
     # note that this will work as well:
     #   '//h3[span[@id="Other_information"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1]/span[@id="Other_information]]//li/a/@href'
+    ARTICLE_PATHS['Links'] = ARTICLE_PATHS['See_also']
 #else:
 #    warn(scrapyroWarning("Glocal variable ARTICLE_PATHS already defined"))
             
@@ -534,17 +538,13 @@ except (NameError,AssertionError):
     ARTICLE_PROCESSORS['Other_information'] =                   \
         {'in':  _default_input_processor,
          'out': _default_output_processor}
+    ARTICLE_PROCESSORS['Links'] = ARTICLE_PROCESSORS['See_also']
 #else:
 #    warn(scrapyroWarning("Glocal variable ARTICLE_PROCESSORS already defined"))        
-    
+     
 #%%
-## Glossary pages
- 
-# Example: http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income
-#
-# One can launch:
-# scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income'
- 
+## definition of GLOSSARY paths and processors
+
 try:
     assert GLOSSARY_PATHS
     assert not (GLOSSARY_PATHS in (None,{}) or all([v in ([],'',None) for v in GLOSSARY_PATHS.values()]))
@@ -629,7 +629,7 @@ except (NameError,AssertionError):
     #   '//h2[span[@id="Statistical_data"]]//following-sibling::ul/li/a/@href'
     # note that this will work as well:
     #   '//h2[span[@id="Statistical_data"]]//following-sibling::*[//ul/li/a]//@href'
-
+    GLOSSARY_PATHS['Links'] = GLOSSARY_PATHS['Related_concepts']
 
 try:
     assert GLOSSARY_PROCESSORS
@@ -661,14 +661,10 @@ except (NameError,AssertionError):
     GLOSSARY_PROCESSORS['Statistical_data'] =                   \
         {'in':  _default_input_processor,
          'out': _default_output_processor} 
-        
+    GLOSSARY_PROCESSORS['Links'] = GLOSSARY_PROCESSORS['Related_concepts']
+     
 #%%
-## Category pages
- 
-# Example: http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary
-#
-# One can launch:
-# scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary'
+## definition of CATEGORY paths and processors
  
 try:
     assert CATEGORY_PATHS
@@ -699,7 +695,7 @@ except (NameError,AssertionError):
                      sep='//')
     # that is actually:    
     #   '//div[@id="footer"]//li[@id="lastmod"]//text()'   
-    ## Pages in category
+    ## Pages in (sub)category
     CATEGORY_PATHS['Pages'] =                                   \
         xpath.create(first='div',                                    
                      tag='li/a/@href',                                
@@ -709,7 +705,8 @@ except (NameError,AssertionError):
                      sep='//')
     # that is actually:    
     #   '//div[@class="mw-content-ltr"]//descendant::*[ancestor::*[starts-with(name(),"div")][1][@class="mw-content-ltr"]]//li/a/@href'
-
+    CATEGORY_PATHS['Links'] = CATEGORY_PATHS['Pages']
+    
 try:
     assert CATEGORY_PROCESSORS
     assert not (CATEGORY_PROCESSORS in (None,{}) or all([v in ([],'',None) for v in CATEGORY_PROCESSORS.values()]))
@@ -727,8 +724,11 @@ except (NameError,AssertionError):
     CATEGORY_PROCESSORS['Pages'] =                              \
         {'in': _default_input_processor,
          'out': _default_output_processor} 
+    CATEGORY_PROCESSORS['Links'] = CATEGORY_PROCESSORS['Pages']
 
-## THEMES
+#%%
+## definition of THEME paths and processors
+
 try:
     assert THEME_PATHS
     assert not (THEME_PATHS in (None,{}) or all([v in ([],'',None) for v in THEME_PATHS.values()]))
@@ -779,7 +779,6 @@ except (NameError,AssertionError):
                      sep='//')
     # that is:
     #   '//h2[span[@id="Online_publications"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Online_publications"]]]//a/@href'
-    
     ## Overview
     THEME_PATHS['Overview'] =                                   \
         xpath.create(first='h4',
@@ -790,7 +789,6 @@ except (NameError,AssertionError):
                      sep='//')
     # that is:
     #   '//h4[span[@id="Overview"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Overview"]]]//a/@href'
-
     ## Background_articles
     THEME_PATHS['Background_articles'] =                        \
         xpath.create(first='h4',
@@ -800,8 +798,7 @@ except (NameError,AssertionError):
                      preceding_sibling='*[starts-with(name(),"h")][1]',
                      sep='//')
     # that is:
-    #   '//h4[span[@id="Background_articles"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Background_articles"]]]//a/@href'
-    
+    #   '//h4[span[@id="Background_articles"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Background_articles"]]]//a/@href'   
     ## Glossary
     THEME_PATHS['Glossary'] =                                   \
         xpath.create(first='h4',
@@ -812,6 +809,8 @@ except (NameError,AssertionError):
                      sep='//')
     # that is:
     #   '//h4[span[@id="Glossary"]]//following-sibling::*[preceding-sibling::*[starts-with(name(),"h")][1][span[@id="Glossary"]]]//a/@href'
+    THEME_PATHS['Links'] = THEME_PATHS['Statistical_articles'] 
+    # + THEME_PATHS['Background_articles'] + THEME_PATHS['Glossary']
 
 try:
     assert THEME_PROCESSORS
@@ -845,6 +844,42 @@ except (NameError,AssertionError):
     THEME_PROCESSORS['Glossary'] =                              \
         {'in': _default_input_processor,
          'out': _default_output_processor} 
+    THEME_PROCESSORS['Links'] = THEME_PROCESSORS['Statistical_articles'] 
+
+#%%
+## definition of CONCEPT paths and processors
+
+try:
+    assert CONCEPT_PATHS
+    assert not (CONCEPT_PATHS in (None,{}) or all([v in ([],'',None) for v in CONCEPT_PATHS.values()]))
+except (NameError,AssertionError):
+    CONCEPT_PATHS = GLOSSARY_PATHS
+
+try:
+    assert CONCEPT_PROCESSORS
+    assert not (CONCEPT_PROCESSORS in (None,{}) or all([v in ([],'',None) for v in CONCEPT_PROCESSORS.values()]))
+except (NameError,AssertionError):
+    CONCEPT_PROCESSORS = GLOSSARY_PROCESSORS
+
+#%%
+SE_PAGES_PATHS      = {settings.GLOSSARY_KEY:   GLOSSARY_PATHS,
+                       settings.CATEGORY_KEY:   CATEGORY_PATHS,
+                       settings.ARTICLE_KEY:    ARTICLE_PATHS,
+                       settings.THEME_KEY:      THEME_PATHS,
+                       settings.CONCEPT_KEY:    CONCEPT_PATHS}
+
+SE_PAGES_PROCESSORS = {settings.GLOSSARY_KEY:   GLOSSARY_PROCESSORS,
+                       settings.CATEGORY_KEY:   CATEGORY_PROCESSORS,
+                       settings.ARTICLE_KEY:    ARTICLE_PROCESSORS,
+                       settings.THEME_KEY:      THEME_PROCESSORS,
+                       settings.CONCEPT_KEY:    CONCEPT_PROCESSORS}
+
+#%%
+#==============================================================================
+# START PAGES
+#==============================================================================
+
+## definition of specific pages paths and processors
 
 try:
     assert WHATLINKS_PATHS
@@ -864,8 +899,24 @@ except (NameError,AssertionError):
         xpath.create(node='html',                            
                      tag='@lang')
     # nothing else than: '//html/@lang'
+    
+    
+# CATEGORIES_PAGE: xpaths for specific scraping of the "Statistical themes" webpage, e.g. 
+# http://ec.europa.eu/eurostat/statistics-explained/index.php?title=Special:Categories&offset=&limit=1000
+try:
+    assert CATEGORIES_PAGE_PATHS
+    assert not (CATEGORIES_PAGE_PATHS in (None,{}) or all([v in ([],'',None) for v in CATEGORIES_PAGE_PATHS.values()]))
+except (NameError,AssertionError):
+    CATEGORIES_PAGE_PATHS = {}
+    CATEGORIES_PAGE_PATHS['Links'] =                            \
+        xpath.create(last='div[@class="printfooter"]',
+                     tag='ul[1]/li/a/@href',
+                     preceding=True)
+    # that is:
+    #   '//div[@class="printfooter"]/preceding::ul[1]/li/a/@href'
 
-# xpath for specific scraping of the "Statistical themes" webpage. e.g. 
+
+# THEMES_PAGE: xpaths for specific scraping of the "Statistical themes" webpage, e.g. 
 # http://ec.europa.eu/eurostat/statistics-explained/index.php/Statistical_themes
 try:
     assert THEMES_PAGE_PATHS
@@ -878,7 +929,7 @@ except (NameError,AssertionError):
                      descendant=True)
     # that is:
     #   '//h3[@class="panel-title"]//descendant::a/@href'
-    THEMES_PAGE_PATHS['Subthemes'] =                            \
+    THEMES_PAGE_PATHS['Links'] =                                \
         xpath.create(node='h1[@id="firstHeading"]', # h1[normalize-space(text())="Statistical themes"]
                      tag='a/@href',
                      following='div[@class="panel-body"]',
@@ -886,7 +937,7 @@ except (NameError,AssertionError):
     # that is:
     #   '//h1[@id="firstHeading"]//following::div[@class="panel-body"]//a/@href'
 
-# xpath for specific scraping of the "All articles" webpage. e.g. 
+# ARTICLES_PAGE: xpaths for specific scraping of the "All articles" webpage, e.g. 
 # http://ec.europa.eu/eurostat/statistics-explained/index.php/All_articles
 try:
     assert ARTICLES_PAGE_PATHS
@@ -894,13 +945,13 @@ try:
 except (NameError,AssertionError):
     ARTICLES_PAGE_PATHS = {}
     # check: the paths are exactly as those used for STATISTICAL_THEMES_PATHS
-    ARTICLES_PAGE_PATHS['Themes'] =                              \
+    ARTICLES_PAGE_PATHS['Themes'] =                             \
         xpath.create(first='h3[@class="panel-title"]',
                      tag='a/@href',
                      descendant=True)
     # that is:
     #   '//h3[@class="panel-title"]//descendant::a/@href'
-    ARTICLES_PAGE_PATHS['Subthemes'] =                           \
+    ARTICLES_PAGE_PATHS['Links'] =                              \
         xpath.create(node='h1[@id="firstHeading"]', # h1[normalize-space(text())="Statistical themes and subthemes"]
                      tag='a/@href',
                      following='div[@class="panel-body"]',
@@ -908,21 +959,20 @@ except (NameError,AssertionError):
     # that is:
     #   '//h1[@id="firstHeading"]//following::div[@class="panel-body"]//a/@href'
 
-# xpath for specific scraping of the "Thematic glossaries" webpage. e.g. 
-# http://ec.europa.eu/eurostat/statistics-explained/index.php/Thematic_glossaries
+# GLOSSARIES_PAGE: xpaths for specific scraping of the "Thematic glossaries" webpage, 
+# e.g. http://ec.europa.eu/eurostat/statistics-explained/index.php/Thematic_glossaries
 try:
     assert GLOSSARIES_PAGE_PATHS
     assert not (GLOSSARIES_PAGE_PATHS in (None,{}) or all([v in ([],'',None) for v in GLOSSARIES_PAGE_PATHS.values()]))
 except (NameError,AssertionError):
     GLOSSARIES_PAGE_PATHS = {}
-    # check: the paths are exactly as those used for STATISTICAL_THEMES_PATHS
     GLOSSARIES_PAGE_PATHS['Themes'] =                           \
         xpath.create(first='h3[@class="panel-title"]',
                      tag='a/@href',
                      descendant=True)
     # that is:
     #   '//h3[@class="panel-title"]//descendant::a/@href'
-    GLOSSARIES_PAGE_PATHS['Subthemes'] =                        \
+    GLOSSARIES_PAGE_PATHS['Links'] =                            \
         xpath.create(node='h1[@id="firstHeading"]', # h1[normalize-space(text())="Statistical themes and subthemes"]
                      tag='a/@href',
                      following='div[@class="panel-body"]',
@@ -937,17 +987,32 @@ except (NameError,AssertionError):
     # that is:
     #   '//h2[span[@id="Special-topic_glossaries"]]//following::table/tr/td//a/@href'
 
-SE_PATHS            = {settings.GLOSSARY_KEY:   GLOSSARY_PATHS,
-                       settings.CATEGORY_KEY:   CATEGORY_PATHS,
-                       settings.ARTICLE_KEY:    ARTICLE_PATHS,
-                       settings.THEME_KEY:      THEME_PATHS}
+# CONCEPTS_PAGE: xpaths for specific scraping of the "Statistical concept" webpage, 
+# e.g. http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Statistical_concept
+try:
+    assert CONCEPTS_PAGE_PATHS
+    assert not (CONCEPTS_PAGE_PATHS in (None,{}) or all([v in ([],'',None) for v in CONCEPTS_PAGE_PATHS.values()]))
+except (NameError,AssertionError):
+    CONCEPTS_PAGE_PATHS = {}
+    CONCEPTS_PAGE_PATHS['Links'] =                              \
+        xpath.create(node='h2[contains(normalize-space(text()),"Statistical concept")]',
+                     tag='a/@href',
+                     following='table/tr/td',
+                     sep='//')
+    # that is:
+    #   '//h2[contains(normalize-space(text()),"Statistical concept")]//following::table/tr/td//a/@href'
 
-SE_PROCESSORS       = {settings.GLOSSARY_KEY:   GLOSSARY_PROCESSORS,
-                       settings.CATEGORY_KEY:   CATEGORY_PROCESSORS,
-                       settings.ARTICLE_KEY:    ARTICLE_PROCESSORS,
-                       settings.THEME_KEY:      THEME_PROCESSORS}
+SE_START_PAGES_PATHS = {settings.GLOSSARY_KEY:  GLOSSARIES_PAGE_PATHS,
+                       settings.CATEGORY_KEY:   CATEGORIES_PAGE_PATHS,
+                       settings.ARTICLE_KEY:    ARTICLES_PAGE_PATHS,
+                       settings.THEME_KEY:      THEMES_PAGE_PATHS,
+                       settings.CONCEPT_KEY:    CONCEPTS_PAGE_PATHS}
 
-
+#SE_START_PAGES_PROCESSORS = {settings.GLOSSARY_KEY: GLOSSARIES_PAGE_PROCESSORS,
+#                       settings.CATEGORY_KEY:   ARTICLES_PAGE_PROCESSORS,
+#                       settings.ARTICLE_KEY:    ARTICLES_PAGE_PROCESSORS,
+#                       settings.THEME_KEY:      THEMES_PAGE_PROCESSORS,
+#                       settings.CONCEPT_KEY:    CCONCEPTS_PAGE_PROCESSORS}
 
 #%%
 #==============================================================================
@@ -981,6 +1046,9 @@ CategoryItem = __base_item_class('GlossaryItem', CATEGORY_PATHS,
 
 ThemeItem = __base_item_class('ThemeItem', THEME_PATHS, 
                                  processors=THEME_PROCESSORS)
+
+ConceptItem = __base_item_class('ContextItem', CONCEPT_PATHS, 
+                                 processors=CONCEPT_PROCESSORS)
 
 WhatLinksItem = __base_item_class('WhatLinksItem', WHATLINKS_PATHS)
             
@@ -1021,7 +1089,8 @@ WhatLinksItem = __base_item_class('WhatLinksItem', WHATLINKS_PATHS)
 SE_ITEMS            = {settings.GLOSSARY_KEY:   GlossaryItem,
                        settings.CATEGORY_KEY:   CategoryItem,
                        settings.ARTICLE_KEY:    ArticleItem,
-                       settings.THEME_KEY:      ThemeItem}
+                       settings.THEME_KEY:      ThemeItem,
+                       settings.CONCEPT_KEY:    ConceptItem}
 
 #%%
 #==============================================================================
@@ -1055,9 +1124,14 @@ class CategoryItemLoader(__BaseItemLoader):
     
 class ThemeItemLoader(__BaseItemLoader):
     def __init__(self, *args, **kwargs):
-        return super(CategoryItemLoader,self).__init__(CategoryItem(), *args, **kwargs)
+        return super(ThemeItemLoader,self).__init__(ThemeItem(), *args, **kwargs)
+    
+class ConceptItemLoader(__BaseItemLoader):
+    def __init__(self, *args, **kwargs):
+        return super(ConceptItemLoader,self).__init__(ConceptItem(), *args, **kwargs)
 
 SE_ITEMLOADERS      = {settings.GLOSSARY_KEY:   GlossaryItemLoader,
                        settings.CATEGORY_KEY:   CategoryItemLoader,
                        settings.ARTICLE_KEY:    ArticleItemLoader,
-                       settings.THEME_KEY:      ThemeItemLoader}
+                       settings.THEME_KEY:      ThemeItemLoader,
+                       settings.CONCEPT_KEY:    ConceptItemLoader}
