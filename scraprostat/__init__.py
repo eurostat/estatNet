@@ -44,13 +44,13 @@ PACKAGES            = [
 # GENERIC WARNING/ERROR CLASSES
 #==============================================================================
 
-class scrapyroError(Exception):
+class scrapError(Exception):
     """Base class for exceptions in this module."""
     def __init__(self, msg, expr=None):    
         self.msg = msg
         if expr is not None:    self.expr = expr
     def __str__(self):              return repr(self.msg)
-class scrapyroWarning(Warning):
+class scrapWarning(Warning):
     """Base class for warnings in this module."""
     def __init__(self, msg, expr=None):    
         self.msg = msg
