@@ -22,3 +22,6 @@ This module will enable you to automatically scrape _Eurostat_ so-called  _"Stat
 **<a name="References"></a>References**
 
 * Framework [_Scrapy_](https://scrapy.org) for extracting data from online websites.
+* Natural language toolkit [_nltk_](http://www.nltk.org/) to work with human language data.
+* Package [_NetworkX_](https://networkx.github.io/) for the creation, manipulation, and study of the structure, dynamics, and functions of complex networks.
+* Module [_py2neo_](http://py2neo.org/v3/) for [_neo4j_](https://neo4j.com/) graph database, though the bolt driver [_neo4j-python-driver_](https://github.com/neo4j/neo4j-python-driver) does the job.
