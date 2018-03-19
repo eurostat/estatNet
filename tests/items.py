@@ -29,6 +29,7 @@ else:
 import time
 import unittest
 
+#%%
 #/************************************************************************/
 class xpathTestCase(unittest.TestCase):
     """Class providing the various tests used when developping the items.xpath class.
@@ -567,7 +568,7 @@ class ArticleItemLoaderTestCase(unittest.TestCase):
 #%%
 # GlossaryItemTestCase case of GlossaryItem
 class GlossaryItemTestCase(unittest.TestCase):
- 
+
     # Example: http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income
     #
     # One can launch:

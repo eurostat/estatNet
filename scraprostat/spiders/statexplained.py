@@ -188,7 +188,7 @@ class PageCrawler(CrawlSpider):
             yield scrapy.Request(link, callback=self.parse) # ???? 
     
         
-    @classmethod
+    @staticmethod
     def _parse_loader(cls, response):
         l = cls(response=response)
         [l.add_xpath(key, l.item._paths[key]) for key in l.item._allowed_keys]
