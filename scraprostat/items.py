@@ -1038,10 +1038,10 @@ def __base_item_class(class_name, paths, **kwargs):
 GlossaryItem = __base_item_class('GlossaryItem', GLOSSARY_PATHS, 
                                  processors=GLOSSARY_PROCESSORS)
 
-ArticleItem = __base_item_class('GlossaryItem', ARTICLE_PATHS, 
+ArticleItem = __base_item_class('ArticleItem', ARTICLE_PATHS, 
                                  processors=ARTICLE_PROCESSORS)
 
-CategoryItem = __base_item_class('GlossaryItem', CATEGORY_PATHS, 
+CategoryItem = __base_item_class('CategoryItem', CATEGORY_PATHS, 
                                  processors=CATEGORY_PROCESSORS)
 
 ThemeItem = __base_item_class('ThemeItem', THEME_PATHS, 

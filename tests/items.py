@@ -569,10 +569,10 @@ class ArticleItemLoaderTestCase(unittest.TestCase):
 # GlossaryItemTestCase case of GlossaryItem
 class GlossaryItemTestCase(unittest.TestCase):
 
-    # Example: http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income
+    # Example: http://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Equivalised_disposable_income
     #
     # One can launch:
-    # scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income'
+    # scrapy shell 'http://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Equivalised_disposable_income'
      
     ## Title
     #   <title>Glossary:Equivalised disposable income - Statistics Explained</title>
@@ -603,18 +603,18 @@ class GlossaryItemTestCase(unittest.TestCase):
     #   <div id="mw-normal-catlinks" class="mw-normal-catlinks">
     #   <a href="/eurostat/statistics-explained/index.php/Special:Categories" title="Special:Categories">Categories</a>: 
     #   <ul>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Category:Glossary" title="Category:Glossary">Glossary</a></li>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary" title="Category:Living conditions glossary">Living conditions glossary</a></li>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Category:Statistical_indicator" title="Category:Statistical indicator">Statistical indicator</a></li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Category:Glossary" title="Category:Glossary">Glossary</a></li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Category:Living_conditions_glossary" title="Category:Living conditions glossary">Living conditions glossary</a></li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Category:Statistical_indicator" title="Category:Statistical indicator">Statistical indicator</a></li>
     #   </ul>
     #   </div>
     # running:
     #       urls=response.xpath(GLOSSARY_PATHS['Categories']).extract()
     # will return: 
-    #   urls = ['/eurostat/statistics-explained/index.php/Category:Household_income,_expenditure_and_debt',
-    #           '/eurostat/statistics-explained/index.php/Category:Living_conditions',
-    #           '/eurostat/statistics-explained/index.php/Category:Statistical_article',
-    #           '/eurostat/statistics-explained/index.php/Category:Multilingual']
+    #   urls = ['/eurostat/statistics-explained/index.php?title=Category:Household_income,_expenditure_and_debt',
+    #           '/eurostat/statistics-explained/index.php?title=Category:Living_conditions',
+    #           '/eurostat/statistics-explained/index.php?title=Category:Statistical_article',
+    #           '/eurostat/statistics-explained/index.php?title=Category:Multilingual']
         
     ## Text:
     #    <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
@@ -669,19 +669,19 @@ class GlossaryItemTestCase(unittest.TestCase):
     ## Related_concepts
     #   <h2><span class="mw-headline" id="Related_concepts">Related concepts</span></h2>
     #   <ul>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_rate" title="Glossary:At-risk-of-poverty rate">At-risk-of-poverty rate</a></li>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Glossary:Income_quintile_share_ratio" title="Glossary:Income quintile share ratio">Income quintile share ratio (S80/S20)</a> </li>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Glossary:Relative_median_at-risk-of-poverty_gap" title="Glossary:Relative median at-risk-of-poverty gap">Relative median at-risk-of-poverty gap</a> </li>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Glossary:Relative_median_income_ratio" title="Glossary:Relative median income ratio">Relative median income ratio</a></li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Glossary:At-risk-of-poverty_rate" title="Glossary:At-risk-of-poverty rate">At-risk-of-poverty rate</a></li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Glossary:Income_quintile_share_ratio" title="Glossary:Income quintile share ratio">Income quintile share ratio (S80/S20)</a> </li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Glossary:Relative_median_at-risk-of-poverty_gap" title="Glossary:Relative median at-risk-of-poverty gap">Relative median at-risk-of-poverty gap</a> </li>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Glossary:Relative_median_income_ratio" title="Glossary:Relative median income ratio">Relative median income ratio</a></li>
     #   </ul>
     #   <h2><span class="mw-headline" id="Statistical_data">Statistical data</span></h2>
     # running:
     #       urls=response.xpath(GLOSSARY_PATHS['Related_concepts'])
     # will return: 
-    #   urls = ['/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_rate',
-    #           '/eurostat/statistics-explained/index.php/Glossary:Income_quintile_share_ratio',
-    #           '/eurostat/statistics-explained/index.php/Glossary:Relative_median_at-risk-of-poverty_gap',
-    #           '/eurostat/statistics-explained/index.php/Glossary:Relative_median_income_ratio']
+    #   urls = ['/eurostat/statistics-explained/index.php?title=Glossary:At-risk-of-poverty_rate',
+    #           '/eurostat/statistics-explained/index.php?title=Glossary:Income_quintile_share_ratio',
+    #           '/eurostat/statistics-explained/index.php?title=Glossary:Relative_median_at-risk-of-poverty_gap',
+    #           '/eurostat/statistics-explained/index.php?title=Glossary:Relative_median_income_ratio']
     #       [url.rsplit('/', 1)[-1].replace('%s:' % settings.GLOSSARY_KEY,'') for url in urls]
     # out = ['At-risk-of-poverty_rate',
     #       'Income_quintile_share_ratio',
@@ -690,24 +690,24 @@ class GlossaryItemTestCase(unittest.TestCase):
     
     ## Additional urls in the text:
     #   response.xpath('//div[@id="bodyContent"]//div[@id="mw-content-text"]/p/a[contains(@href,"Glossary")]/@href').extract()
-    # out = ['/eurostat/statistics-explained/index.php/Glossary:OECD']
+    # out = ['/eurostat/statistics-explained/index.php?title=Glossary:OECD']
     
     ## Statistical_data
     #   <h2><span class="mw-headline" id="Statistical_data">Statistical data</span></h2>
     #   <ul>
-    #   <li><a href="/eurostat/statistics-explained/index.php/Income_distribution_statistics" title="Income distribution statistics">Income distribution statistics</a>
+    #   <li><a href="/eurostat/statistics-explained/index.php?title=Income_poverty_statistics" title="Income poverty statistics">Income poverty statistics</a>
     #   </li>
     #   </ul>
     # running:
-    #       urls=response.xpath(GLOSSARY_PATHS['Related_concepts'])
+    #       urls=response.xpath(GLOSSARY_PATHS['Statistical_data'])
     # will return: 
-    #   urls = ['/eurostat/statistics-explained/index.php/Income_distribution_statistics']    
+    #   urls = ['/eurostat/statistics-explained/index.php?title=Income_poverty_statistics']    
     
     ## Categories extraction
     #   urls=response.xpath('//div[@id="catlinks"]//div[@id="mw-normal-catlinks"]//following-sibling::ul[1]/li/a/@href').extract()
-    # out = ['/eurostat/statistics-explained/index.php/Category:Glossary',
-    #       '/eurostat/statistics-explained/index.php/Category:Living_conditions_glossary',
-    #       '/eurostat/statistics-explained/index.php/Category:Statistical_indicator']
+    # out = ['/eurostat/statistics-explained/index.php?title=Category:Glossary',
+    #       '/eurostat/statistics-explained/index.php?title=Category:Living_conditions_glossary',
+    #       '/eurostat/statistics-explained/index.php?title=Category:Statistical_indicator']
     # [url.rsplit('/', 1)[-1].replace('%s:' % settings.CATEGORY_KEY,'') for url in urls]
     # out = ['Glossary', 'Living_conditions_glossary', 'Statistical_indicator']    
     pass
@@ -720,95 +720,95 @@ class CategoryItemTestCase(unittest.TestCase):
     #    <p>The following 84 pages are in this category, out of 84 total.
     #    </p><div lang="en" dir="ltr" class="mw-content-ltr">
     #   <table style="width: 100%;"><tr style="vertical-align: top;"><td style="width: 33.3%;"><h3>A</h3>
-    #    <ul><li><a href="/eurostat/statistics-explained/index.php/Glossary:Actual_social_contributions" title="Glossary:Actual social contributions">Actual social contributions</a></li>
-    #    <li><a href="/eurostat/statistics-explained/index.php/Glossary:Aggregate_replacement_ratio" title="Glossary:Aggregate replacement ratio">Aggregate replacement ratio</a></li>
-    #    <li><a href="/eurostat/statistics-explained/index.php/Glossary:Arrears_for_housing_and_non-housing_bills_and_for_other_loans_and_credit_repayment" title="Glossary:Arrears for housing and non-housing bills and for other loans and credit repayment">Arrears for housing and non-housing bills and for other loans and credit repayment</a></li>
+    #    <ul><li><a href="/eurostat/statistics-explained/index.php?title=Glossary:Actual_social_contributions" title="Glossary:Actual social contributions">Actual social contributions</a></li>
+    #    <li><a href="/eurostat/statistics-explained/index.php?title=Glossary:Aggregate_replacement_ratio" title="Glossary:Aggregate replacement ratio">Aggregate replacement ratio</a></li>
+    #    <li><a href="/eurostat/statistics-explained/index.php?title=Glossary:Arrears_for_housing_and_non-housing_bills_and_for_other_loans_and_credit_repayment" title="Glossary:Arrears for housing and non-housing bills and for other loans and credit repayment">Arrears for housing and non-housing bills and for other loans and credit repayment</a></li>
     #   ...
     
-    #['/eurostat/statistics-explained/index.php/Glossary:Actual_social_contributions',
-    # '/eurostat/statistics-explained/index.php/Glossary:Aggregate_replacement_ratio',
-    # '/eurostat/statistics-explained/index.php/Glossary:Arrears_for_housing_and_non-housing_bills_and_for_other_loans_and_credit_repayment',
-    # '/eurostat/statistics-explained/index.php/Glossary:At_risk_of_poverty_or_social_exclusion_(AROPE)',
-    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_gap',
-    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_rate_before_social_transfers',
-    # '/eurostat/statistics-explained/index.php/Glossary:At-risk-of-poverty_threshold',
-    # '/eurostat/statistics-explained/index.php/Glossary:Bank_account_overdraft',
-    # '/eurostat/statistics-explained/index.php/Glossary:Bank_current_account',
-    # '/eurostat/statistics-explained/index.php/Glossary:Classification_of_individual_consumption_by_purpose_(COICOP)',
-    # '/eurostat/statistics-explained/index.php/Glossary:COICOP',
-    # '/eurostat/statistics-explained/index.php/Glossary:Collective_household',
-    # '/eurostat/statistics-explained/index.php/Glossary:Credit_or_store_card_unclear_balance',
-    # '/eurostat/statistics-explained/index.php/Glossary:Dependent_children',
-    # '/eurostat/statistics-explained/index.php/Glossary:Disposable_income',
-    # '/eurostat/statistics-explained/index.php/Glossary:Dwelling',
-    # '/eurostat/statistics-explained/index.php/Glossary:Early_retirement',
-    # '/eurostat/statistics-explained/index.php/Glossary:Early_retirement_for_labour_market_reasons',
-    # '/eurostat/statistics-explained/index.php/Glossary:Early_retirement_in_case_of_reduced_ability_to_work',
-    # '/eurostat/statistics-explained/index.php/Glossary:Earnings',
-    # '/eurostat/statistics-explained/index.php/Glossary:Equivalent_size',
-    # '/eurostat/statistics-explained/index.php/Glossary:Equivalised_disposable_income',
-    # '/eurostat/statistics-explained/index.php/Glossary:Equivalised_household_size',
-    # '/eurostat/statistics-explained/index.php/Glossary:Equivalised_income',
-    # '/eurostat/statistics-explained/index.php/Glossary:ESSPROS',
-    # '/eurostat/statistics-explained/index.php/Glossary:EU_statistics_on_income_and_living_conditions_(EU-SILC)',
-    # '/eurostat/statistics-explained/index.php/Glossary:EU-SILC',
-    # '/eurostat/statistics-explained/index.php/Glossary:European_system_of_integrated_social_protection_statistics_(ESSPROS)',
-    # '/eurostat/statistics-explained/index.php/Glossary:Expenditure_on_pensions',
-    # '/eurostat/statistics-explained/index.php/Glossary:Gini_coefficient',
-    # '/eurostat/statistics-explained/index.php/Glossary:Gross_income',
-    # '/eurostat/statistics-explained/index.php/Glossary:HBS',
-    # '/eurostat/statistics-explained/index.php/Glossary:HDI',
-    # '/eurostat/statistics-explained/index.php/Glossary:House_price_index_(HPI)',
-    # '/eurostat/statistics-explained/index.php/Glossary:Household_-_social_statistics',
-    # '/eurostat/statistics-explained/index.php/Glossary:Household_budget_survey_(HBS)', 
-    # '/eurostat/statistics-explained/index.php/Glossary:Household_situation_concerning_arrears_and_outstanding_amounts',
-    # '/eurostat/statistics-explained/index.php/Glossary:Housing_cost_overburden_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:HPI',
-    # '/eurostat/statistics-explained/index.php/Glossary:Human_development_index_(HDI)',
-    # '/eurostat/statistics-explained/index.php/Glossary:Imputed_social_contributions',
-    # '/eurostat/statistics-explained/index.php/Glossary:Income_quintile_group',
-    # '/eurostat/statistics-explained/index.php/Glossary:Income_quintile_share_ratio',
-    # '/eurostat/statistics-explained/index.php/Glossary:Income_terciles',
-    # '/eurostat/statistics-explained/index.php/Glossary:Inequality_of_income_distribution',
-    # '/eurostat/statistics-explained/index.php/Glossary:Institutional_household',
-    # '/eurostat/statistics-explained/index.php/Glossary:Jobless_households',
-    # '/eurostat/statistics-explained/index.php/Glossary:Material_deprivation',
-    # '/eurostat/statistics-explained/index.php/Glossary:Material_deprivation_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:Minimum_wage',
-    # '/eurostat/statistics-explained/index.php/Glossary:Monetary_poverty',
-    # '/eurostat/statistics-explained/index.php/Glossary:Old_age_pension',
-    # '/eurostat/statistics-explained/index.php/Glossary:OMC',
-    # '/eurostat/statistics-explained/index.php/Glossary:Open_method_of_coordination_(OMC)',
-    # '/eurostat/statistics-explained/index.php/Glossary:Overcrowded',
-    # '/eurostat/statistics-explained/index.php/Glossary:Overcrowding_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:Partial_retirement_pension',
-    # '/eurostat/statistics-explained/index.php/Glossary:Persistent_at-risk-of-poverty_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:Persons_living_in_households_with_low_work_intensity',
-    # '/eurostat/statistics-explained/index.php/Glossary:Private_household',
-    # '/eurostat/statistics-explained/index.php/Glossary:Quintile_cut-off_point',
-    # '/eurostat/statistics-explained/index.php/Glossary:Relative_median_at-risk-of-poverty_gap',
-    # '/eurostat/statistics-explained/index.php/Glossary:Relative_median_income_ratio',
-    # '/eurostat/statistics-explained/index.php/Glossary:Room',
-    # '/eurostat/statistics-explained/index.php/Glossary:S80/S20_ratio',
-    # '/eurostat/statistics-explained/index.php/Glossary:Severe_housing_deprivation_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:Severe_material_deprivation_rate',
-    # '/eurostat/statistics-explained/index.php/Glossary:SILC',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_benefits',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_contributions',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_benefits',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_expenditure',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_receipts',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_security_fund',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_transfers',
-    # '/eurostat/statistics-explained/index.php/Glossary:Social_protection_scheme',
-    # '/eurostat/statistics-explained/index.php/Glossary:Tax_wedge_on_labour_cost',
-    # '/eurostat/statistics-explained/index.php/Glossary:Under-occupation',
-    # '/eurostat/statistics-explained/index.php/Glossary:Under-occupied_dwelling',
-    # '/eurostat/statistics-explained/index.php/Glossary:Unemployment_trap',
-    # '/eurostat/statistics-explained/index.php/Glossary:Work_intensity',
-    # '/eurostat/statistics-explained/index.php/Glossary:Working_conditions_survey']
+    #['/eurostat/statistics-explained/index.php?title=Glossary:Actual_social_contributions',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Aggregate_replacement_ratio',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Arrears_for_housing_and_non-housing_bills_and_for_other_loans_and_credit_repayment',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:At_risk_of_poverty_or_social_exclusion_(AROPE)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:At-risk-of-poverty_gap',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:At-risk-of-poverty_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:At-risk-of-poverty_rate_before_social_transfers',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:At-risk-of-poverty_threshold',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Bank_account_overdraft',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Bank_current_account',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Classification_of_individual_consumption_by_purpose_(COICOP)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:COICOP',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Collective_household',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Credit_or_store_card_unclear_balance',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Dependent_children',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Disposable_income',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Dwelling',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Early_retirement',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Early_retirement_for_labour_market_reasons',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Early_retirement_in_case_of_reduced_ability_to_work',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Earnings',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Equivalent_size',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Equivalised_disposable_income',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Equivalised_household_size',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Equivalised_income',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:ESSPROS',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:EU_statistics_on_income_and_living_conditions_(EU-SILC)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:EU-SILC',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:European_system_of_integrated_social_protection_statistics_(ESSPROS)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Expenditure_on_pensions',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Gini_coefficient',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Gross_income',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:HBS',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:HDI',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:House_price_index_(HPI)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Household_-_social_statistics',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Household_budget_survey_(HBS)', 
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Household_situation_concerning_arrears_and_outstanding_amounts',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Housing_cost_overburden_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:HPI',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Human_development_index_(HDI)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Imputed_social_contributions',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Income_quintile_group',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Income_quintile_share_ratio',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Income_terciles',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Inequality_of_income_distribution',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Institutional_household',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Jobless_households',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Material_deprivation',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Material_deprivation_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Minimum_wage',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Monetary_poverty',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Old_age_pension',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:OMC',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Open_method_of_coordination_(OMC)',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Overcrowded',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Overcrowding_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Partial_retirement_pension',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Persistent_at-risk-of-poverty_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Persons_living_in_households_with_low_work_intensity',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Private_household',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Quintile_cut-off_point',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Relative_median_at-risk-of-poverty_gap',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Relative_median_income_ratio',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Room',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:S80/S20_ratio',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Severe_housing_deprivation_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Severe_material_deprivation_rate',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:SILC',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_benefits',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_contributions',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_protection',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_protection_benefits',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_protection_expenditure',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_protection_receipts',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_security_fund',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_transfers',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Social_protection_scheme',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Tax_wedge_on_labour_cost',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Under-occupation',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Under-occupied_dwelling',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Unemployment_trap',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Work_intensity',
+    # '/eurostat/statistics-explained/index.php?title=Glossary:Working_conditions_survey']
 
     pass
 

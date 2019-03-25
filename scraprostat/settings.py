@@ -69,7 +69,7 @@ def __build_se_url(page):
         return '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
     else:
         # return '%s/%s?%s' % (ESTAT_URL, SE_DOMAINURL, subdomain)
-        return '%s://%s/%s/%s?%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL, page)
+        return '%s://%s/%s/%s?title=%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL, page)
 
 GLOSSARY_KEY        = 'glossary'
 CATEGORY_KEY        = 'category'
@@ -119,7 +119,7 @@ Upper limit of what can be displayed on a single "categories" page: we need to
 ensure that all category links are read on a single page.
 """
 # actually we cheet here: let us update the page with the upper limit
-CATEGORIES_PAGE     = 'title=%s&offset=&limit=%s' % (CATEGORIES_PAGE, CATEGORIES_LIMIT)
+CATEGORIES_PAGE     = '%s&offset=&limit=%s' % (CATEGORIES_PAGE, CATEGORIES_LIMIT)
 #CATEGORIES_URL      = __build_se_url(CATEGORIES_PAGE)
 #"""
 #Full URL of the "Categories" page, _e.g._ it is something like this page:
