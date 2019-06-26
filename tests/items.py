@@ -297,19 +297,19 @@ class ArticleItemTestCase(unittest.TestCase):
     #   <title>Income distribution statistics - Statistics Explained</title>
     def test01(self):
         sel = scrapy.Selector(text='<h1 id="firstHeading" class="firstHeading">Income distribution statistics</h1>')
-        self.assertEqual(TakeFirst()(_xp(sel, items.ARTICLE_PATHS['Title'])),
+        self.assertEqual(TakeFirst()(_xp(sel, items.ARTICLE_PATHS[SE_VERSION_0]['Title'])),
                          'Income distribution statistics')
     def test01_constructor_with_selector(self):
         sel = scrapy.Selector(text='<html><body><h1 id="firstHeading" class="firstHeading">Income distribution statistics</h1></body></html>')
         l = items.ArticleItemLoader(selector=sel)
         self.assertTrue(l.selector is sel)
-        l.add_xpath('Title', items.ARTICLE_PATHS['Title'])
+        l.add_xpath('Title', items.ARTICLE_PATHS[SE_VERSION_0]['Title'])
         self.assertEqual(l.get_output_value('Title'), 
                          ['Income distribution statistics'])
     def test01_constructor_with_response(self):
         l = items.ArticleItemLoader(response=self.response)
         self.assertTrue(l.selector)
-        l.add_xpath('Title', items.ARTICLE_PATHS['Title'])
+        l.add_xpath('Title', items.ARTICLE_PATHS[SE_VERSION_0]['Title'])
         self.assertEqual(l.get_output_value('Title'), 
                          ['Income distribution statistics'])  
     
@@ -331,6 +331,92 @@ class ArticleItemTestCase(unittest.TestCase):
     #       import datefinder 
     #       [d for d in datefinder.find_dates(txt)][0]
     # so as to retrieve the (formatted) date-time (e.g.: datetime.datetime(2017, 9, 19, 10, 19))
+
+
+# test https://ec.europa.eu/eurostat/statistics-explained/index.php?title=People_at_risk_of_poverty_or_social_exclusion#Number_of_people_at_risk_of_poverty_or_social_exclusion
+# See also
+#   ['/eurostat/statistics-explained/index.php?title=Employment_statistics',
+#    '/eurostat/statistics-explained/index.php?title=Housing_statistics',
+#    '/eurostat/statistics-explained/index.php?title=Living_conditions_in_Europe_-_housing_quality',
+#    '/eurostat/statistics-explained/index.php?title=Income_poverty_statistics',
+#    '/eurostat/statistics-explained/index.php?title=Living_conditions_in_Europe_-_material_deprivation_and_economic_strain',
+#    '/eurostat/statistics-explained/index.php?title=Migrant_integration_statistics_-_at_risk_of_poverty_and_social_exclusion',
+#    '/eurostat/statistics-explained/index.php?title=Quality_of_life_indicators_-_economic_and_physical_safety',
+#    '/eurostat/statistics-explained/index.php?title=Quality_of_life_indicators_-_material_living_conditions',
+#    '/eurostat/statistics-explained/index.php?title=Unemployment_statistics']
+# Datasets
+#   ['http://ec.europa.eu/eurostat/product?code=ilc_pees01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_peps01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_pees01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_peps01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li10&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li02&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li22b&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_lvhl11&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_mddd11&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_mdes04&language=en&mode=view']
+# Main tables
+#   ['https://ec.europa.eu/eurostat/web/income-and-living-conditions/data/main-tables']
+# Database
+#   ['http://ec.europa.eu/eurostat/web/income-and-living-conditions/data/database']
+# Dedicated Section
+#   ['http://ec.europa.eu/eurostat/web/employment-and-social-inclusion-indicators/overview',
+#    'http://ec.europa.eu/eurostat/web/europe-2020-indicators/europe-2020-strategy',
+#    'http://ec.europa.eu/eurostat/web/gdp-and-beyond/overview',
+#    'http://ec.europa.eu/eurostat/web/income-and-living-conditions/overview',
+#    'http://ec.europa.eu/eurostat/web/gdp-and-beyond/quality-of-life']
+# Publications
+#   ['http://ec.europa.eu/eurostat/product?code=KS-05-14-075&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-EZ-16-001&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-05-14-073&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-DZ-14-001&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-FP-13-001&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-TC-16-005&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=3-16102017-BP&language=en']
+# External Links
+#   ['http://ec.europa.eu/social/main.jsp?langId=en&catId=113#ESDE',
+#    'http://ec.europa.eu/social/main.jsp?catId=738&langId=en&pubId=8030&type=2&furtherPubs=yes',
+#    'http://ec.europa.eu/social/main.jsp?catId=737&langId=en&pubId=7979&furtherPubs=yes',
+#    'http://www.oecd.org/economy/oecdstatisticsonmeasuringeconomicperformanceandsocialprogress.htm',
+#    'http://ec.europa.eu/social/main.jsp?catId=750&langId=en&pubId=5976&type=2&furtherPubs=yes']
+# Legislation
+#   ['http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32003R1177:EN:NOT',
+#    'http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32005R1553:EN:NOT']
+# Methodology
+#   ['http://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm',
+#    '/eurostat/statistics-explained/index.php?title=EU_statistics_on_income_and_living_conditions_(EU-SILC)_methodology',
+#    'http://ec.europa.eu/eurostat/web/income-and-living-conditions/methodology',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-13-014&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-12-018&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-13-024&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-13-007&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-09-007&language=en']
+# Products
+#   ['http://ec.europa.eu/eurostat/product?code=ilc_pees01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_peps01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_pees01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_peps01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li10&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li02&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li01&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_li22b&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_lvhl11&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_mddd11&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=ilc_mdes04&language=en&mode=view',
+#    'http://ec.europa.eu/eurostat/product?code=KS-05-14-075&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-EZ-16-001&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-05-14-073&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-DZ-14-001&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-FP-13-001&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-TC-16-005&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=3-16102017-BP&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-13-014&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-12-018&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-13-024&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-13-007&language=en',
+#    'http://ec.europa.eu/eurostat/product?code=KS-RA-09-007&language=en']
+
 
     # Categories
     #   <div id='catlinks' class='catlinks'>

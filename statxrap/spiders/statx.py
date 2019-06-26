@@ -1,20 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.. settings.py
+.. statx.py
 
 Basic definitions for Eurobase scraping/indexing spider.
 
-**About**
-
-*credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
-
-*version*:      0.1
---
-*since*:        Sun Jan 14 17:31:51 2018
-
-**Contents**
 """
+
+# *credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
+# *since*:        Sun Jan 14 17:31:51 2018
 
 import scrapy
 
@@ -24,7 +18,7 @@ from scrapy.loader.processors import TakeFirst
 
 from collections import Mapping
 
-from .. import scrapError, scrapWarning#analysis:ignore 
+from .. import SXcrapError, SXcrapWarning#analysis:ignore 
 from ..settings import DEF_LANG, SE_MAINURL, SE_KEYS, SE_KEYDOMAINS, \
     ARTICLE_KEY, GLOSSARY_KEY, CATEGORY_KEY, THEME_KEY, CONCEPT_KEY,                \
     ARTICLE_DOMAIN, GLOSSARY_DOMAIN, CATEGORY_DOMAIN, THEME_DOMAIN, CONCEPT_DOMAIN, \
@@ -67,7 +61,7 @@ except (NameError,AssertionError):
 
 def __check_page(response, page):
     if not page in SE_KEYDOMAINS:
-        raise scrapError("Page type %s not recognised as any from Eurostat website" % page)
+        raise SXrapError("Page type %s not recognised as any from Eurostat website" % page)
     else:
         domain = SE_KEYDOMAINS[page]
     if domain not in (None,'',[]):
@@ -86,7 +80,7 @@ def __identify_page(response):
         if res is True:
             return page
     if res is False: # actually if we are still here...
-        #warn(essWarning("Page %s not recognised as a standard type" % response.url))
+        #warn(SXrapWarning("Page %s not recognised as a standard type" % response.url))
         return None
         
 def __remove_link(path):
@@ -108,7 +102,7 @@ class WhatLinksSpider(Spider):
     def __init__(self, page, *args, **kwargs):
         self.npages, self.nlinks = kwargs.pop('npages', -1), kwargs.pop('nlinks', -1)
         if page is None:
-           raise scrapError("Name of destination page is missing")
+           raise SXrapError("Name of destination page is missing")
         elif not isinstance(page, (list, tuple)):
             page = page[0]
         if self.start_urls is None:
@@ -163,9 +157,9 @@ class PageCrawler(CrawlSpider):
             pages = {(key,True) for key in self.allowed_arguments} # {'main': True} ? 
         elif not isinstance(pages,Mapping)      \
                 or set(pages.keys()).difference(set(self.allowed_arguments)) != set({}):
-            raise scrapError('wrong settings for PAGES parameter')
+            raise SXrapError('wrong settings for PAGES parameter')
         #if set(self.allowed_argments).intersection(set(pages.keys())) == set({}):
-        #    warning.warn(scrapWarning('nothing to scrape!'))
+        #    warning.warn(SXrapWarning('nothing to scrape!'))
         #    return
         self.start_urls = []
         [self.start_urls.append(SE_START_PAGES[key] if val is True  

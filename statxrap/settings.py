@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-.. _esscrape_settings.py
+.. _statxrap_settings.py
 
 Common settings and basic definitions for Eurobase scraping/indexing spider defined
 in `mod::esscrape` module.  
@@ -12,17 +12,10 @@ in `mod::esscrape` module.
 For simplicity, this file contains only settings considered important or
 commonly used. 
 
-*credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
-
-*version*:      0.1
---
-*since*:        Mon Dec 18 17:28:29 2017
-
-**Usage**
-
-    >>> from scrapyroWarning import settings
-
 """
+
+# *credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
+# *since*:        Mon Dec 18 17:28:29 2017
 
 #%%
 #==============================================================================
@@ -51,25 +44,32 @@ def __build_estat_url(domain):
     # return '%s/%s' % (ESTAT_URL, domain)
     return '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, domain)
 
-SE_DOMAINURL        = 'statistics-explained/index.php'
+SX_DOMAINURL        = 'statistics-explained/index.php'
 """
 Statistical Explained domain under Eurostat URL.
 """
-SE_RELURL           = '%s/%s' % (ESTAT_DOMAIN, SE_DOMAINURL)
+SX_RELURL           = '%s/%s' % (ESTAT_DOMAIN, SX_DOMAINURL)
 """
 Statistical Explained domain under European Commission URL.
 """
-SE_MAINURL          = '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
+SX_MAINURL          = '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SX_DOMAINURL)
 """
 Statistical Explained complete URL.
 """
+SX_VERSIONS         = {0: 0,
+                       1: 1,
+                       'current': 1,
+                       'last': 0}
+"""
+Layout version of Statistical Explained articles.
+"""
 
-def __build_se_url(page):
+def __build_sx_url(page):
     if page in (None,''):
-        return '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL)
+        return '%s://%s/%s/%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SX_DOMAINURL)
     else:
-        # return '%s/%s?%s' % (ESTAT_URL, SE_DOMAINURL, subdomain)
-        return '%s://%s/%s/%s?title=%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SE_DOMAINURL, page)
+        # return '%s/%s?%s' % (ESTAT_URL, SX_DOMAINURL, subdomain)
+        return '%s://%s/%s/%s?title=%s' % (PROTOCOL, EC_URL, ESTAT_DOMAIN, SX_DOMAINURL, page)
 
 GLOSSARY_KEY        = 'glossary'
 CATEGORY_KEY        = 'category'
@@ -78,13 +78,13 @@ THEME_KEY           = 'theme'
 CONCEPT_KEY         = 'concept'
 WHATLINKS_KEY       = 'whatlinks'
 
-SE_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY, CONCEPT_KEY]
+SX_KEYS             = [GLOSSARY_KEY, CATEGORY_KEY, ARTICLE_KEY, THEME_KEY, CONCEPT_KEY]
 
 MAIN_PAGE           = 'Main_Page'
 """
 Domain of the "Statistics Explained" main page.
 """
-#MAIN_PAGE_URL       = __build_se_url(MAIN_PAGE)
+#MAIN_PAGE_URL       = __build_sx_url(MAIN_PAGE)
 #"""
 #Full URL of the "Statistics Explained" main page.
 #"""
@@ -93,7 +93,7 @@ ARTICLES_PAGE       = 'All_articles'
 """
 Domain where "All articles" are referred.
 """
-#ARTICLES_URL        = __build_se_url(ARTICLES_PAGE)
+#ARTICLES_URL        = __build_sx_url(ARTICLES_PAGE)
 #"""
 #Full URL of the "All articles" page, _e.g._ it is something like this page:
 #`<http://ec.europa.eu/eurostat/statistics-explained/index.php/All_articles>`_.
@@ -103,7 +103,7 @@ GLOSSARIES_PAGE     = 'Thematic_glossaries'
 """
 Domain of the "Thematic glossaries" page.
 """
-#GLOSSARIES_URL      = __build_se_url(GLOSSARIES_PAGE)
+#GLOSSARIES_URL      = __build_sx_url(GLOSSARIES_PAGE)
 #"""
 #Full URL of the "Thematic glossaries" page, _e.g._ it is something like this page:
 #`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Thematic_glossaries>`_.
@@ -120,7 +120,7 @@ ensure that all category links are read on a single page.
 """
 # actually we cheet here: let us update the page with the upper limit
 CATEGORIES_PAGE     = '%s&offset=&limit=%s' % (CATEGORIES_PAGE, CATEGORIES_LIMIT)
-#CATEGORIES_URL      = __build_se_url(CATEGORIES_PAGE)
+#CATEGORIES_URL      = __build_sx_url(CATEGORIES_PAGE)
 #"""
 #Full URL of the "Categories" page, _e.g._ it is something like this page:
 #`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Special:Categories>`_.
@@ -130,7 +130,7 @@ CONCEPTS_PAGE       = 'Category:Statistical_concept'
 """
 Domain of the "Statistical concepts" page.
 """
-#CONCEPTS_URL        = __build_se_url(CONCEPTS_PAGE)
+#CONCEPTS_URL        = __build_sx_url(CONCEPTS_PAGE)
 #"""
 #Full URL of the "Statistical concepts" page, _e.g._ it is something like this page:
 #`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Category:Statistical_concept>`_.
@@ -140,13 +140,13 @@ THEMES_PAGE         = 'Statistical_themes'
 """
 Domain of the "Statistical themes" page.
 """
-#THEMES_URL          = __build_se_url(THEMES_PAGE)
+#THEMES_URL          = __build_sx_url(THEMES_PAGE)
 #"""
 #Full URL of the "Statistical themes" page, _e.g._ it is something like this page:
 #`<http://ec.europa.eu/eurostat/statistics-explained/index.php/Statistical_themes>`_.
 #"""
 
-SE_START_PAGES      = {'main':          MAIN_PAGE,
+SX_START_PAGES      = {'main':          MAIN_PAGE,
                        GLOSSARY_KEY:    GLOSSARIES_PAGE, 
                        CATEGORY_KEY:    CATEGORIES_PAGE, 
                        ARTICLE_KEY:     ARTICLES_PAGE, 
@@ -156,9 +156,9 @@ SE_START_PAGES      = {'main':          MAIN_PAGE,
 """Dictionary of Statistics Explained main pages.
 """
 
-SE_START_URLS       =  {k: __build_se_url(v) for k, v in SE_START_PAGES.items()}
+SX_START_URLS       =  {k: __build_sx_url(v) for k, v in SX_START_PAGES.items()}
 """Dictionary of Statistics Explained main URLs built upon the main pages defined
-in :var:`SE_START_PAGES`.
+in :var:`SX_START_PAGES`.
 """
 
 WHATLINKSHERE_PAGE  = 'Special:WhatLinksHere'
@@ -170,12 +170,12 @@ WHATLINKSHERE_LIMIT = 1000
 Upper limit of what can be displayed on a single "What link's here" page: we need 
 to ensure that all links are available on a single page.
 """
-WHATLINKSHERE_URL   = __build_se_url('title=%s' % WHATLINKSHERE_PAGE)
+WHATLINKSHERE_URL   = __build_sx_url('title=%s' % WHATLINKSHERE_PAGE)
 """
 Partial (initial) URL of the "What link's here" pages.
 """
 # what links to the page MYPAGE will be retrieved by the following URL:
-# page = __build_se_url('title=%s/%s&limit=%s' % (WHATLINKSHERE_PAGE, MYPAGE, WHATLINKSHERE_LIMIT))
+# page = __build_sx_url('title=%s/%s&limit=%s' % (WHATLINKSHERE_PAGE, MYPAGE, WHATLINKSHERE_LIMIT))
 #      = '%s/%s&limit=%s' % (WHATLINKSHERE_URL, MYPAGE, WHATLINKSHERE_LIMIT)
 
 GLOSSARY_DOMAIN     = 'Glossary:'
@@ -204,7 +204,7 @@ String used for naming the URL subdomains of concept pages, _i.e._ those pages
 that are referenced into the "Statistical concepts" page.
 """
 
-SE_KEYDOMAINS       = {GLOSSARY_KEY:    GLOSSARY_DOMAIN, 
+SX_KEYDOMAINS       = {GLOSSARY_KEY:    GLOSSARY_DOMAIN, 
                        CATEGORY_KEY:    CATEGORY_DOMAIN, 
                        ARTICLE_KEY:     ARTICLE_DOMAIN, 
                        THEME_KEY:       THEME_DOMAIN,
@@ -227,6 +227,11 @@ DEF_LANG            = 'en'
 Default language used when launching Eurostat API.
 """
 
+KEY_URL_PRODUCT     = 'product?code'
+"""
+Key string characterising the URLs of products (e.g., datasets or publications).
+"""
+
 #==============================================================================
 # GLOBAL VARIABLES USED FOR SETTING THE SPIDER/CRAWLER
 #==============================================================================
@@ -236,14 +241,14 @@ Default language used when launching Eurostat API.
 #   http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #   http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME            = 'scrapyrostat'
+BOT_NAME            = 'statxrap'
 
-SPIDER_MODULES      = ['scrapyrostat.spiders']
-NEWSPIDER_MODULE    = 'scrapyrostat.spiders'
+SPIDER_MODULES      = ['statxrap.spiders']
+NEWSPIDER_MODULE    = 'statxrap.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT          = 'scrapyrostat (+https://github.com/gjacopo/scrapyrostat)'
+USER_AGENT          = 'statxrap (+https://github.com/gjacopo/statxweb)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY      = True

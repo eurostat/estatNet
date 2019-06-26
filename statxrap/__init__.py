@@ -2,22 +2,18 @@
 # -*- coding: utf-8 -*-
 
 """
-.. _esscrape__init__.py
+.. _statxrap__init__.py
 
 Initialisation file.
 
 **About**
 
-*credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
-
-*version*:      0.1
---
-*since*:        Mon Dec 18 17:28:29 2017
-
 **Usage**
 
-    >>> from esscrape import *
 """
+
+# *credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
+# *since*:        Mon Dec 18 17:28:29 2017
 
 __all__ = ['spiders']#analysis:ignore
 
@@ -26,9 +22,9 @@ __all__ = ['spiders']#analysis:ignore
 #==============================================================================
 
 METADATA            = dict([
-                        ('project', 'esscrape'),
+                        ('package', 'statxrap'),
                         ('date', 'Mon Dec 18 17:28:29 2017'),
-                        ('url', 'https://github.com/gjacopo/esscrape'),
+                        ('url', 'https://github.com/gjacopo/statxweb'),
                         ('organization', 'European Union'),
                         ('license', 'European Union Public Licence (EUPL)'),
                         ('version', '0.1'),
@@ -44,13 +40,13 @@ PACKAGES            = [
 # GENERIC WARNING/ERROR CLASSES
 #==============================================================================
 
-class scrapError(Exception):
+class SXrapError(Exception):
     """Base class for exceptions in this module."""
     def __init__(self, msg, expr=None):    
         self.msg = msg
         if expr is not None:    self.expr = expr
     def __str__(self):              return repr(self.msg)
-class scrapWarning(Warning):
+class SXrapWarning(Warning):
     """Base class for warnings in this module."""
     def __init__(self, msg, expr=None):    
         self.msg = msg

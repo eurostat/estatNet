@@ -4,29 +4,16 @@
 """
 .. __init__.py
 
-
-
-**About**
-
-*credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
-
-*version*:      0.1
---
-*since*:        Mon Dec 18 17:28:29 2017
-
-
 **Description**
 
-**Usage**
-
-    >>> import esspider
-    
 """
 
+# *credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
+# *since*:        Mon Dec 18 17:28:29 2017
 
-__all__ = ['base', 'xpaths']#analysis:ignore
+__all__ = ['statx']#analysis:ignore
 
-# from esscrape import metadata
+# from statxrap import metadata
 
 #==============================================================================
 # PROGRAM METADATA
