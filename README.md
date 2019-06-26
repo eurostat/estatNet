@@ -1,5 +1,5 @@
-CONetStat
-=========
+StatXWeb
+========
 
 Module for Eurostat online glossaries' web scraping, ontology indexing and semantic classification
 ---
