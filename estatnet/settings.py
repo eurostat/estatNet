@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-.. _statxrap_settings.py
+.. _estatnet__settings.py
 
 Common settings and basic definitions for Eurobase scraping/indexing spider defined
 in `mod::esscrape` module.  
@@ -162,45 +162,37 @@ in :var:`SX_START_PAGES`.
 """
 
 WHATLINKSHERE_PAGE  = 'Special:WhatLinksHere'
-"""
-Domain of the "What link's here" pages.
+"""Domain of the "What link's here" pages.
 """
 WHATLINKSHERE_LIMIT = 1000
-"""
-Upper limit of what can be displayed on a single "What link's here" page: we need 
-to ensure that all links are available on a single page.
+"""Upper limit of what can be displayed on a single "What link's here" page: we 
+need to ensure that all links are available on a single page.
 """
 WHATLINKSHERE_URL   = __build_sx_url('title=%s' % WHATLINKSHERE_PAGE)
-"""
-Partial (initial) URL of the "What link's here" pages.
+"""Partial (initial) URL of the "What link's here" pages.
 """
 # what links to the page MYPAGE will be retrieved by the following URL:
 # page = __build_sx_url('title=%s/%s&limit=%s' % (WHATLINKSHERE_PAGE, MYPAGE, WHATLINKSHERE_LIMIT))
 #      = '%s/%s&limit=%s' % (WHATLINKSHERE_URL, MYPAGE, WHATLINKSHERE_LIMIT)
 
 GLOSSARY_DOMAIN     = 'Glossary:'
-"""
-String used for naming the URL subdomains of glossary pages, _i.e._ those pages 
+"""String used for naming the URL subdomains of glossary pages, _i.e._ those pages 
 that are referenced into the "Glossary" page.
 """
 CATEGORY_DOMAIN     = 'Category:'
-"""
-String used for naming the URL subdomains of category pages, _i.e._ those pages 
+"""String used for naming the URL subdomains of category pages, _i.e._ those pages 
 that are referenced into the "Category" page.
 """
 ARTICLE_DOMAIN      = ''
-"""
-String used for naming the URL subdomains of article pages, _i.e._ those pages 
+"""String used for naming the URL subdomains of article pages, _i.e._ those pages 
 that are referenced into the "All articles" page.
 """
 THEME_DOMAIN        = ''
-"""
-String used for naming the URL subdomains of theme pages, _i.e._ those pages 
+"""String used for naming the URL subdomains of theme pages, _i.e._ those pages 
 that are referenced into the "Statistical themes" page.
 """
 CONCEPT_DOMAIN      = GLOSSARY_DOMAIN
-"""
-String used for naming the URL subdomains of concept pages, _i.e._ those pages 
+"""String used for naming the URL subdomains of concept pages, _i.e._ those pages 
 that are referenced into the "Statistical concepts" page.
 """
 
@@ -210,26 +202,23 @@ SX_KEYDOMAINS       = {GLOSSARY_KEY:    GLOSSARY_DOMAIN,
                        THEME_KEY:       THEME_DOMAIN,
                        CONCEPT_KEY:     CONCEPT_DOMAIN
                        }
-"""
+"""Dictionary of the key strings use to build the URLs of all Statistics Explained
+pages.
 """
 
 API_DOMAIN          = 'ec.europa.eu/eurostat/wdds/rest/data'
-"""
-Domain of Eurostat API (not used here).
+"""Domain of Eurostat API (not used here).
 """
 
 LANGS               = ('en','de','fr')
-"""
-Languages supported by this package.
+"""Languages supported by this package.
 """
 DEF_LANG            = 'en'
-"""
-Default language used when launching Eurostat API.
+"""Default language used when launching Eurostat API.
 """
 
 KEY_URL_PRODUCT     = 'product?code'
-"""
-Key string characterising the URLs of products (e.g., datasets or publications).
+"""Key string characterising the URLs of products (e.g., datasets or publications).
 """
 
 #==============================================================================

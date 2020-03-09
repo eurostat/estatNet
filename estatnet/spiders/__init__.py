@@ -11,7 +11,7 @@
 # *credits*:      `gjacopo <jacopo.grazzini@ec.europa.eu>`_ 
 # *since*:        Mon Dec 18 17:28:29 2017
 
-__all__ = ['statx']#analysis:ignore
+__all__ = ['sxnet']#analysis:ignore
 
 # from statxrap import metadata
 

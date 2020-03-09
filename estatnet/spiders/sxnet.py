@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-.. statx.py
+.. sxnet.py
 
 Basic definitions for Eurobase scraping/indexing spider.
 
@@ -18,15 +18,15 @@ from scrapy.loader.processors import TakeFirst
 
 from collections import Mapping
 
-from .. import SXcrapError, SXcrapWarning#analysis:ignore 
-from ..settings import DEF_LANG, SE_MAINURL, SE_KEYS, SE_KEYDOMAINS, \
+from .. import ENetError, ENetWarning#analysis:ignore 
+from ..settings import DEF_LANG, SX_MAINURL, SX_KEYS, SX_KEYDOMAINS, \
     ARTICLE_KEY, GLOSSARY_KEY, CATEGORY_KEY, THEME_KEY, CONCEPT_KEY,                \
     ARTICLE_DOMAIN, GLOSSARY_DOMAIN, CATEGORY_DOMAIN, THEME_DOMAIN, CONCEPT_DOMAIN, \
     SE_START_PAGES,                                                                 \
     WHATLINKSHERE_URL, WHATLINKSHERE_LIMIT                                          \
     
 import items
-from ..items import GLOSSARY_PATHS, SE_PAGES_PATHS, SE_START_PAGES_PATHS, WHATLINKS
+from ..items import GLOSSARY_PATHS, SX_PAGES_PATHS, SX_START_PAGES_PATHS, WHATLINKS
 
 #%%
 #==============================================================================
@@ -60,10 +60,10 @@ except (NameError,AssertionError):
 #==============================================================================
 
 def __check_page(response, page):
-    if not page in SE_KEYDOMAINS:
-        raise SXrapError("Page type %s not recognised as any from Eurostat website" % page)
+    if not page in SX_KEYDOMAINS:
+        raise ENetError("Page type %s not recognised as any from Eurostat website" % page)
     else:
-        domain = SE_KEYDOMAINS[page]
+        domain = SX_KEYDOMAINS[page]
     if domain not in (None,'',[]):
         return response.url.startswith(domain)
     else:
@@ -72,7 +72,7 @@ def __check_page(response, page):
         
 def __identify_page(response):        
     res = False
-    for (page,domain) in SE_KEYDOMAINS.items():
+    for (page,domain) in SX_KEYDOMAINS.items():
         if domain not in (None,'',[]):
             res = response.url.startswith(domain)
         else:
@@ -80,7 +80,7 @@ def __identify_page(response):
         if res is True:
             return page
     if res is False: # actually if we are still here...
-        #warn(SXrapWarning("Page %s not recognised as a standard type" % response.url))
+        #warn(SXcrapWarning("Page %s not recognised as a standard type" % response.url))
         return None
         
 def __remove_link(path):
@@ -93,7 +93,7 @@ def __remove_link(path):
     
 class WhatLinksSpider(Spider):
     name = "WhatLinksHere"
-    allowed_domains = [SE_MAINURL] 
+    allowed_domains = [SX_MAINURL] 
     
     @staticmethod
     def url_whatlinkshere(page):
@@ -102,7 +102,7 @@ class WhatLinksSpider(Spider):
     def __init__(self, page, *args, **kwargs):
         self.npages, self.nlinks = kwargs.pop('npages', -1), kwargs.pop('nlinks', -1)
         if page is None:
-           raise SXrapError("Name of destination page is missing")
+           raise ENetError("Name of destination page is missing")
         elif not isinstance(page, (list, tuple)):
             page = page[0]
         if self.start_urls is None:
@@ -130,18 +130,18 @@ class WhatLinksSpider(Spider):
             
 class PageCrawler(CrawlSpider):
     name = "PageExplained"
-    allowed_domains = [SE_MAINURL]  # [settings.ESTAT_URL]
-    allowed_arguments = [key for key in SE_KEYS if key!=ARTICLE_KEY]
+    allowed_domains = [SX_MAINURL]  # [settings.ESTAT_URL]
+    allowed_arguments = [key for key in SX_KEYS if key!=ARTICLE_KEY]
 
     # this spider has one rule per type of page scraped: extract all (unique and 
     # canonicalized) links, follow them and parse them using the dedicated parse
     # method
     rules = (
-        Rule(LinkExtractor(restrict_xpath=__remove_link(SE_PAGES_PATHS[key]['Links']), 
-                           allow=r"^" + SE_MAINURL + SE_KEYDOMAINS[key],
-                           deny=[r"^" + SE_MAINURL + SE_KEYDOMAINS[_]   \
-                                 for _ in SE_KEYDOMAINS.keys()          \
-                                 if _!=key and SE_KEYDOMAINS[_]!='']), 
+        Rule(LinkExtractor(restrict_xpath=__remove_link(SX_PAGES_PATHS[key]['Links']), 
+                           allow=r"^" + SX_MAINURL + SX_KEYDOMAINS[key],
+                           deny=[r"^" + SX_MAINURL + SX_KEYDOMAINS[_]   \
+                                 for _ in SX_KEYDOMAINS.keys()          \
+                                 if _!=key and SX_KEYDOMAINS[_]!='']), 
              callback="_parse_%s" % key )
         for key in allowed_arguments
         )
@@ -157,13 +157,13 @@ class PageCrawler(CrawlSpider):
             pages = {(key,True) for key in self.allowed_arguments} # {'main': True} ? 
         elif not isinstance(pages,Mapping)      \
                 or set(pages.keys()).difference(set(self.allowed_arguments)) != set({}):
-            raise SXrapError('wrong settings for PAGES parameter')
+            raise ENetError('wrong settings for PAGES parameter')
         #if set(self.allowed_argments).intersection(set(pages.keys())) == set({}):
-        #    warning.warn(SXrapWarning('nothing to scrape!'))
+        #    warning.warn(SXcrapWarning('nothing to scrape!'))
         #    return
         self.start_urls = []
         [self.start_urls.append(SE_START_PAGES[key] if val is True  
-                                else '%s/%s%S' % (SE_MAINURL, SE_KEYDOMAINS[key], val))
+                                else '%s/%s%S' % (SX_MAINURL, SX_KEYDOMAINS[key], val))
             for (key,val) in pages.items() ] 
         super(PageCrawler, self).__init__(*args, **kwargs)
 
@@ -175,9 +175,9 @@ class PageCrawler(CrawlSpider):
     def parse_start_url(self, response):
         key = __identify_page(response) 
         if response.url == SE_START_PAGES[key]:
-            links = response.xpath(SE_START_PAGES_PATHS[key]['Links'])
+            links = response.xpath(SX_START_PAGES_PATHS[key]['Links'])
         else:
-            links = response.xpath(SE_PAGES_PATHS[key]['Links'])
+            links = response.xpath(SX_PAGES_PATHS[key]['Links'])
         for link in links:
             yield scrapy.Request(link, callback=self.parse) # ???? 
     
@@ -218,11 +218,11 @@ class PageCrawler(CrawlSpider):
 
 
     #def start_requests(self):
-    #    yield scrapy.Request('%s/%s:%s' % (settings.SE_MAINURL, settings.CATEGORY_KEY, category))
+    #    yield scrapy.Request('%s/%s:%s' % (settings.SX_MAINURL, settings.CATEGORY_KEY, category))
         
     #def start_requests(self):
     #    urls = [
-    #        '%s/%s' % (settings.SE_MAINURL, settings.CATEGORIES_DOMAIN)
+    #        '%s/%s' % (settings.SX_MAINURL, settings.CATEGORIES_DOMAIN)
     #    ]
     #    for url in urls:
     #        yield scrapy.Request(url=url, callback=self.parse)
