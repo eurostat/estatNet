@@ -13,7 +13,7 @@
 
 __all__ = ['sxnet']#analysis:ignore
 
-# from statxrap import metadata
+# from estatnet import metadata
 
 #==============================================================================
 # PROGRAM METADATA
