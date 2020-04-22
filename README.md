@@ -10,7 +10,7 @@ This module will enable you to automatically scrape _Eurostat_ online_"Statistic
 
 <table align="center">
   <tr> <td align="left"><i>documentation</i></td> <td align="left"><!--  available at: https://eurostat.github.io/estatNet/ --></td> </tr>
-    <tr> <td align="left"><i>status</i></td> <td align="left">since 2019 &ndash; <b>in construction</b></td></tr> 
+    <tr> <td align="left"><i>status</i></td> <td align="left">since 2018 &ndash; <b>in construction</b></td></tr> 
     <tr> <td align="left"><i>contributors</i></td> 
     <td align="left" valign="middle"> <a href="https://github.com/gjacopo"><img src="https://github.com/gjacopo.png" width="40"></a> </td> </tr> 
     <tr> <td align="left"><i>license</i></td> <td align="left"><a href="https://joinup.ec.europa.eu/sites/default/files/eupl1.1.-licence-en_0.pdfEUPL">EUPL</a> </td> </tr> 
